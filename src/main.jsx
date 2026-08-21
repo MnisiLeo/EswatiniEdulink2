@@ -1,49 +1,45 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  ShieldCheck,
   School,
   Search,
+  ShieldCheck,
   Users,
   GraduationCap,
   Wallet,
   MessageSquare,
-  CalendarDays,
-  CalendarCheck,
-  BookOpen,
-  FileText,
-  Settings,
-  Boxes,
-  LogOut,
   Menu,
   X,
+  ChevronRight,
   CheckCircle,
   Clock,
   AlertTriangle,
-  Upload,
-  Eye,
-  UserPlus,
-  ChevronRight,
-  Home,
+  LogOut,
+  LayoutDashboard,
+  BookOpen,
+  CalendarCheck,
   Receipt,
-  UserCheck,
-  UserMinus
+  Settings,
+  Boxes,
+  FileText,
+  UserPlus,
+  CalendarDays,
+  Upload,
+  ClipboardList,
+  XCircle,
+  Eye,
+  Trash2,
+  Plus,
+  UserCheck
 } from "lucide-react";
 import "./styles.css";
 
-/*
-=========================================================
-EDULINK ESWATINI
-Demo frontend prototype
-All data is fictional and stored in localStorage.
-=========================================================
-*/
+/* =========================================================
+   EDULINK ESWATINI
+   Functional presentation prototype
+   ========================================================= */
 
-const DEMO_PASSWORD = "demo123";
-
-/* =======================================================
-   ROLE PERMISSIONS
-======================================================= */
+const PASSWORD = "demo123";
 
 const ROLE_PERMISSIONS = {
   "System Admin": [
@@ -60,10 +56,8 @@ const ROLE_PERMISSIONS = {
     "attendance",
     "marks",
     "finance",
-    "spaces",
-    "resources",
-    "notifications",
     "calendar",
+    "notifications",
     "reports",
     "settings"
   ],
@@ -76,10 +70,8 @@ const ROLE_PERMISSIONS = {
     "attendance",
     "marks",
     "finance",
-    "spaces",
-    "resources",
-    "notifications",
     "calendar",
+    "notifications",
     "reports"
   ],
 
@@ -115,35 +107,26 @@ const ROLE_PERMISSIONS = {
 };
 
 const NAVIGATION = {
-  dashboard: ["Overview", LayoutDashboardIcon],
+  dashboard: ["Dashboard", LayoutDashboard],
   schools: ["Find a School", School],
   admissions: ["Applications", FileText],
   students: ["Students", Users],
-  teachers: ["Teachers", GraduationCap],
+  teachers: ["Staff", GraduationCap],
   attendance: ["Attendance", CalendarCheck],
   marks: ["Marks & Performance", BookOpen],
   finance: ["Finance", Wallet],
-  spaces: ["Available Spaces", Boxes],
-  resources: ["Resources", Boxes],
-  notifications: ["Notifications", MessageSquare],
-  calendar: ["School Calendar", CalendarDays],
   children: ["My Children", Users],
   applications: ["My Applications", FileText],
   fees: ["School Fees", Receipt],
+  notifications: ["Notifications", MessageSquare],
+  calendar: ["School Calendar", CalendarDays],
   reports: ["Reports", FileText],
   settings: ["Settings", Settings]
 };
 
-/*
-Small wrapper so the navigation map stays simple.
-*/
-function LayoutDashboardIcon(props) {
-  return <Home {...props} />;
-}
-
-/* =======================================================
-   DEMO DATA
-======================================================= */
+/* =========================================================
+   INITIAL DATA
+   ========================================================= */
 
 const INITIAL_DATA = {
   schools: [
@@ -153,8 +136,6 @@ const INITIAL_DATA = {
       centre: "3333",
       location: "Manzini",
       type: "High School",
-      phone: "+268 0000 0000",
-      email: "demo@school.sz",
       fees: 3000,
       status: "APPROVED",
       admission: "OPEN",
@@ -164,38 +145,8 @@ const INITIAL_DATA = {
         "Form 3": 15,
         "Form 4": 12,
         "Form 5": 13
-      },
-      staff: [
-        {
-          id: "STAFF-1",
-          name: "Dr. J. Dlamini",
-          role: "Principal"
-        },
-        {
-          id: "STAFF-2",
-          name: "Mr. B. Mamba",
-          role: "Deputy Principal"
-        },
-        {
-          id: "STAFF-3",
-          name: "Mr. M. Nkosi",
-          role: "Teacher",
-          subjects: ["Mathematics", "English"],
-          grades: ["Form 1", "Form 2"]
-        },
-        {
-          id: "STAFF-4",
-          name: "Ms. P. Mamba",
-          role: "Accountant"
-        },
-        {
-          id: "STAFF-5",
-          name: "Mrs. S. Hlophe",
-          role: "Secretary"
-        }
-      ]
+      }
     },
-
     {
       id: "S2",
       name: "Mbabane Valley Secondary School",
@@ -211,10 +162,8 @@ const INITIAL_DATA = {
         "Form 3": 11,
         "Form 4": 7,
         "Form 5": 5
-      },
-      staff: []
+      }
     },
-
     {
       id: "S3",
       name: "Royal Hills Primary School",
@@ -232,16 +181,50 @@ const INITIAL_DATA = {
         "Grade 5": 10,
         "Grade 6": 7,
         "Grade 7": 6
-      },
-      staff: []
+      }
     }
   ],
 
   pendingSchools: [],
 
+  staff: [
+    {
+      id: "STF1",
+      name: "Dr. J. Dlamini",
+      role: "Principal",
+      schoolId: "S1"
+    },
+    {
+      id: "STF2",
+      name: "Mr. B. Mamba",
+      role: "Deputy Principal",
+      schoolId: "S1"
+    },
+    {
+      id: "STF3",
+      name: "Mr. M. Nkosi",
+      role: "Teacher",
+      schoolId: "S1",
+      subjects: ["Mathematics", "English"],
+      grades: ["Form 1", "Form 2"]
+    },
+    {
+      id: "STF4",
+      name: "Ms. P. Mamba",
+      role: "Accountant",
+      schoolId: "S1"
+    },
+    {
+      id: "STF5",
+      name: "Mrs. S. Hlophe",
+      role: "Secretary",
+      schoolId: "S1"
+    }
+  ],
+
   students: [
     {
-      id: "ST-001",
+      id: "STU1",
       name: "Lwazi Mamba",
       form: "Form 1",
       schoolId: "S1",
@@ -260,9 +243,8 @@ const INITIAL_DATA = {
         }
       }
     },
-
     {
-      id: "ST-002",
+      id: "STU2",
       name: "Ayanda Hlophe",
       form: "Form 2",
       schoolId: "S1",
@@ -281,9 +263,8 @@ const INITIAL_DATA = {
         }
       }
     },
-
     {
-      id: "ST-003",
+      id: "STU3",
       name: "Sibusiso Dlamini",
       form: "Form 3",
       schoolId: "S1",
@@ -303,48 +284,49 @@ const INITIAL_DATA = {
 
   payments: [
     {
-      id: "PAY-1",
-      studentId: "ST-001",
+      id: "PAY1",
+      studentId: "STU1",
       parentEmail: "parent@demo.sz",
       amount: 1500,
       status: "APPROVED",
-      receipt: "Demo receipt - E1500"
+      receipt: "Demo receipt E1500"
     },
     {
-      id: "PAY-2",
-      studentId: "ST-002",
+      id: "PAY2",
+      studentId: "STU2",
       parentEmail: "parent@demo.sz",
       amount: 1000,
       status: "PENDING",
-      receipt: "Demo receipt - E1000"
+      receipt: "Demo receipt E1000"
     }
   ],
 
   notifications: [
     {
-      id: "NOT-1",
+      id: "N1",
       title: "Welcome to EduLink Eswatini",
-      body: "This is fictional demonstration data.",
+      body: "Welcome to the EduLink demonstration platform.",
       audience: "all"
     }
   ],
 
   calendar: [
     {
-      id: "CAL-1",
+      id: "CAL1",
       title: "Parent Meeting",
       date: "2026-09-05",
       time: "14:00",
-      details: "Main hall"
+      details: "Main Hall",
+      schoolId: "S1"
     }
   ]
 };
 
-/* =======================================================
+/* =========================================================
    DEMO ACCOUNTS
-======================================================= */
+   ========================================================= */
 
-const DEMO_ACCOUNTS = {
+const ACCOUNTS = {
   "parent@demo.sz": {
     role: "Parent",
     name: "Demo Parent",
@@ -389,22 +371,20 @@ const DEMO_ACCOUNTS = {
   }
 };
 
-/* =======================================================
-   STORAGE
-======================================================= */
+/* =========================================================
+   DATA HELPERS
+   ========================================================= */
 
-function cloneInitialData() {
+function createInitialData() {
   return JSON.parse(JSON.stringify(INITIAL_DATA));
 }
 
 function loadData() {
   try {
-    const saved = localStorage.getItem(
-      "edulink-eswatini-data"
-    );
+    const saved = localStorage.getItem("edulink-eswatini-data");
 
     if (!saved) {
-      return cloneInitialData();
+      return createInitialData();
     }
 
     const parsed = JSON.parse(saved);
@@ -413,19 +393,20 @@ function loadData() {
       !parsed ||
       !Array.isArray(parsed.schools) ||
       !Array.isArray(parsed.pendingSchools) ||
+      !Array.isArray(parsed.staff) ||
       !Array.isArray(parsed.students) ||
       !Array.isArray(parsed.applications) ||
       !Array.isArray(parsed.payments) ||
       !Array.isArray(parsed.notifications) ||
       !Array.isArray(parsed.calendar)
     ) {
-      return cloneInitialData();
+      return createInitialData();
     }
 
     return parsed;
   } catch (error) {
-    console.error(error);
-    return cloneInitialData();
+    console.error("EduLink storage error:", error);
+    return createInitialData();
   }
 }
 
@@ -436,339 +417,138 @@ function saveData(data) {
       JSON.stringify(data)
     );
   } catch (error) {
-    console.error(error);
+    console.error("Could not save EduLink data:", error);
   }
 }
 
 function totalSpaces(spaces) {
   return Object.values(spaces || {}).reduce(
-    (total, number) => total + Number(number || 0),
+    (total, value) => total + Number(value || 0),
     0
   );
 }
 
-function studentAverage(student) {
-  const values = [];
-
-  Object.values(student.subjects || {}).forEach(
-    (subject) => {
-      values.push(Number(subject.test || 0));
-      values.push(Number(subject.exam || 0));
-    }
+function averageStudent(student) {
+  const marks = Object.values(student.subjects || {}).flatMap(
+    (subject) => [
+      Number(subject.test || 0),
+      Number(subject.exam || 0)
+    ]
   );
 
-  if (!values.length) {
+  if (!marks.length) {
     return 0;
   }
 
-  const total = values.reduce(
-    (sum, value) => sum + value,
-    0
+  return Math.round(
+    marks.reduce((total, mark) => total + mark, 0) /
+      marks.length
   );
-
-  return Math.round(total / values.length);
 }
 
-function aggregate(student) {
+function aggregateStudent(student) {
   return Object.values(student.subjects || {}).reduce(
-    (sum, subject) =>
-      sum +
+    (total, subject) =>
+      total +
       Number(subject.test || 0) +
       Number(subject.exam || 0),
     0
   );
 }
 
-/* =======================================================
+/* =========================================================
    APP
-======================================================= */
+   ========================================================= */
 
 function App() {
   const [data, setData] = useState(loadData);
   const [user, setUser] = useState(null);
   const [page, setPage] = useState("home");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   useEffect(() => {
     saveData(data);
   }, [data]);
+
+  function login(account) {
+    setUser(account);
+    setPage("dashboard");
+  }
+
+  function logout() {
+    setUser(null);
+    setPage("home");
+    setMobileMenu(false);
+  }
 
   if (!user) {
     return (
       <PublicHome
         data={data}
         setData={setData}
-        loginUser={setUser}
+        onLogin={login}
       />
     );
   }
 
-  const allowed =
-    ROLE_PERMISSIONS[user.role] || [];
-
   return (
-    <div className="app">
-      <aside
-        className={
-          mobileOpen
-            ? "sidebar open"
-            : "sidebar"
-        }
-      >
-        <div className="brand">
-          <div className="brandIcon">
-            <ShieldCheck size={22} />
-          </div>
-
-          <div>
-            EduLink <span>ESWATINI</span>
-          </div>
-        </div>
-
-        <div className="roleBadge">
-          {user.role}
-        </div>
-
-        <nav>
-          {allowed.map((key) => {
-            const item = NAVIGATION[key];
-
-            if (!item) {
-              return null;
-            }
-
-            const label = item[0];
-            const Icon = item[1];
-
-            return (
-              <button
-                key={key}
-                className={
-                  page === key
-                    ? "navActive"
-                    : ""
-                }
-                onClick={() => {
-                  setPage(key);
-                  setMobileOpen(false);
-                }}
-              >
-                <Icon size={18} />
-                {label}
-              </button>
-            );
-          })}
-        </nav>
-
-        <button
-          className="logout"
-          onClick={() => {
-            setUser(null);
-            setPage("home");
-          }}
-        >
-          <LogOut size={18} />
-          Sign out
-        </button>
-      </aside>
-
-      <main className="main">
-        <header className="topbar">
-          <button
-            className="mobileBtn"
-            onClick={() =>
-              setMobileOpen(!mobileOpen)
-            }
-          >
-            {mobileOpen ? (
-              <X />
-            ) : (
-              <Menu />
-            )}
-          </button>
-
-          <div>
-            <strong>{user.name}</strong>
-
-            <small>
-              {user.role}
-
-              {user.schoolId
-                ? " • " +
-                  (
-                    data.schools.find(
-                      (school) =>
-                        school.id ===
-                        user.schoolId
-                    ) || {}
-                  ).name
-                : ""}
-            </small>
-          </div>
-
-          <span className="topPill">
-            DEMO MODE
-          </span>
-        </header>
-
-        <div className="content">
-          <PageRouter
-            page={page}
-            user={user}
-            data={data}
-            setData={setData}
-            setPage={setPage}
-          />
-        </div>
-      </main>
-    </div>
+    <AuthenticatedApp
+      user={user}
+      data={data}
+      setData={setData}
+      page={page}
+      setPage={setPage}
+      logout={logout}
+      mobileMenu={mobileMenu}
+      setMobileMenu={setMobileMenu}
+    />
   );
 }
 
-/* =======================================================
+/* =========================================================
    PUBLIC HOME
-======================================================= */
+   ========================================================= */
 
-function PublicHome({
-  data,
-  setData,
-  loginUser
-}) {
+function PublicHome({ data, setData, onLogin }) {
   const [search, setSearch] = useState("");
-  const [loginOpen, setLoginOpen] =
-    useState(false);
-  const [registerOpen, setRegisterOpen] =
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [registrationOpen, setRegistrationOpen] =
     useState(false);
   const [selectedSchool, setSelectedSchool] =
     useState(null);
 
   const schools = data.schools.filter(
-    (school) => {
-      const searchable =
-        (
-          school.name +
-          " " +
-          school.centre +
-          " " +
-          school.location
-        ).toLowerCase();
-
-      return (
-        school.status === "APPROVED" &&
-        searchable.includes(
-          search.toLowerCase()
-        )
-      );
-    }
+    (school) => school.status === "APPROVED"
   );
+
+  const filteredSchools = schools.filter((school) => {
+    const text =
+      `${school.name} ${school.centre} ${school.location}`.toLowerCase();
+
+    return text.includes(search.toLowerCase());
+  });
 
   if (selectedSchool) {
     return (
       <div className="public">
         <PublicHeader
           onLogin={() => setLoginOpen(true)}
-          onSchools={() =>
-            setSelectedSchool(null)
-          }
+          onSchools={() => setSelectedSchool(null)}
         />
 
-        <section className="profilePage">
-          <button
-            className="backBtn"
-            onClick={() =>
-              setSelectedSchool(null)
-            }
-          >
-            ← Back to schools
-          </button>
-
-          <div className="profileHero">
-            <div>
-              <span className="eyebrow">
-                APPROVED SCHOOL
-              </span>
-
-              <h1>
-                {selectedSchool.name}
-              </h1>
-
-              <p>
-                Centre Number:{" "}
-                <b>
-                  {selectedSchool.centre}
-                </b>{" "}
-                • {selectedSchool.location}
-              </p>
-            </div>
-
-            <span className="openBadge">
-              {selectedSchool.admission ===
-              "OPEN"
-                ? "ADMISSIONS OPEN"
-                : "ADMISSIONS CLOSED"}
-            </span>
-          </div>
-
-          <div className="profileGrid">
-            <div className="infoPanel">
-              <h3>Available spaces</h3>
-
-              <div className="bigNumber">
-                {totalSpaces(
-                  selectedSchool.spaces
-                )}
-              </div>
-
-              {Object.entries(
-                selectedSchool.spaces
-              ).map(
-                ([grade, spaces]) => (
-                  <div
-                    className="spaceRow"
-                    key={grade}
-                  >
-                    <span>{grade}</span>
-                    <strong>
-                      {spaces > 0
-                        ? spaces
-                        : "FULL"}
-                    </strong>
-                  </div>
-                )
-              )}
-            </div>
-
-            <div className="infoPanel">
-              <h3>School fees</h3>
-
-              <div className="feeAmount">
-                E{" "}
-                {Number(
-                  selectedSchool.fees
-                ).toLocaleString()}
-              </div>
-
-              <p>
-                Parents must login before
-                making an application.
-              </p>
-
-              <button
-                className="primary"
-                onClick={() =>
-                  setLoginOpen(true)
-                }
-              >
-                Login to Apply
-              </button>
-            </div>
-          </div>
-        </section>
+        <SchoolProfile
+          school={selectedSchool}
+          onBack={() => setSelectedSchool(null)}
+          onLogin={() => setLoginOpen(true)}
+        />
 
         {loginOpen && (
           <LoginModal
-            close={() => setLoginOpen(false)}
-            loginUser={loginUser}
+            onClose={() => setLoginOpen(false)}
+            onLogin={(account) => {
+              setLoginOpen(false);
+              onLogin(account);
+            }}
           />
         )}
       </div>
@@ -796,16 +576,14 @@ function PublicHome({
 
           <h1>
             One platform for{" "}
-            <em>
-              schools, parents and students.
-            </em>
+            <em>schools, parents and students.</em>
           </h1>
 
           <p>
-            Find schools, check spaces,
-            apply online, monitor your
-            child's progress and receive
-            school communications.
+            Find schools, check available spaces,
+            submit applications, monitor your
+            child's progress and stay connected
+            with school communications.
           </p>
 
           <div className="actions">
@@ -826,7 +604,7 @@ function PublicHome({
             <button
               className="secondary"
               onClick={() =>
-                setRegisterOpen(true)
+                setRegistrationOpen(true)
               }
             >
               Register Your School
@@ -836,55 +614,40 @@ function PublicHome({
 
         <div className="heroPanel">
           <div className="miniTop">
-            <span>
-              EduLink Eswatini
-            </span>
-
+            <span>EduLink Eswatini</span>
             <b>Prototype</b>
           </div>
 
           <div className="miniStatGrid">
             <div>
-              <strong>
-                {data.schools.length}
-              </strong>
-              <small>
-                Registered schools
-              </small>
+              <strong>{schools.length}</strong>
+              <small>Approved schools</small>
             </div>
 
             <div>
               <strong>
-                {data.schools.reduce(
+                {schools.reduce(
                   (total, school) =>
-                    total +
-                    totalSpaces(
-                      school.spaces
-                    ),
+                    total + totalSpaces(school.spaces),
                   0
                 )}
               </strong>
-
-              <small>
-                Available spaces
-              </small>
+              <small>Available spaces</small>
             </div>
 
             <div>
               <strong>
-                {
-                  data.applications.filter(
-                    (application) =>
-                      application.status ===
-                      "PENDING"
-                  ).length
-                }
+                {data.pendingSchools.length}
               </strong>
-
-              <small>
-                Active applications
-              </small>
+              <small>Pending registrations</small>
             </div>
+          </div>
+
+          <div className="miniNote">
+            <CheckCircle size={18} />
+            <span>
+              Connected education management
+            </span>
           </div>
         </div>
       </section>
@@ -898,11 +661,11 @@ function PublicHome({
             SCHOOL DIRECTORY
           </span>
 
-          <h2>Find a school</h2>
+          <h2>Find a School</h2>
 
           <p>
-            Search by school name, Centre
-            Number or location.
+            Search approved schools by name,
+            Centre Number or location.
           </p>
         </div>
 
@@ -912,23 +675,19 @@ function PublicHome({
           <input
             value={search}
             onChange={(event) =>
-              setSearch(
-                event.target.value
-              )
+              setSearch(event.target.value)
             }
-            placeholder="School name, Centre Number or location"
+            placeholder="Search school, Centre Number or location..."
           />
         </div>
 
         <div className="schoolGrid">
-          {schools.map((school) => (
+          {filteredSchools.map((school) => (
             <button
               className="schoolCard"
               key={school.id}
               onClick={() =>
-                setSelectedSchool(
-                  school
-                )
+                setSelectedSchool(school)
               }
             >
               <div className="schoolIcon">
@@ -937,36 +696,26 @@ function PublicHome({
 
               <div className="schoolCardBody">
                 <div className="schoolLine">
-                  <span>
-                    {school.type}
-                  </span>
+                  <span>{school.type}</span>
 
                   <b>
-                    {school.admission ===
-                    "OPEN"
+                    {school.admission === "OPEN"
                       ? "Admissions Open"
-                      : "Closed"}
+                      : "Admissions Closed"}
                   </b>
                 </div>
 
-                <h3>
-                  {school.name}
-                </h3>
+                <h3>{school.name}</h3>
 
                 <p>
-                  Centre Number:{" "}
-                  {school.centre}
+                  Centre Number: {school.centre}
                 </p>
 
-                <p>
-                  {school.location}
-                </p>
+                <p>{school.location}</p>
 
                 <div className="spaceLine">
                   <strong>
-                    {totalSpaces(
-                      school.spaces
-                    )}
+                    {totalSpaces(school.spaces)}
                   </strong>
 
                   <span>
@@ -982,38 +731,37 @@ function PublicHome({
       <section className="publicSection alt">
         <div className="sectionHead">
           <span className="eyebrow">
-            EDULINK ESWATINI
+            HOW EDULINK WORKS
           </span>
 
           <h2>
-            A connected education
-            platform
+            A connected education experience
           </h2>
         </div>
 
         <div className="featureGrid">
-          <FeatureCard
-            icon={<School />}
+          <Feature
+            icon="🏫"
             title="Find Schools"
-            text="Parents can search approved schools and available spaces."
+            text="Parents can discover approved schools and available spaces."
           />
 
-          <FeatureCard
-            icon={<FileText />}
-            title="Apply Online"
-            text="Parents can submit applications and required documents."
+          <Feature
+            icon="📝"
+            title="Online Applications"
+            text="Parents submit applications and upload required documents."
           />
 
-          <FeatureCard
-            icon={<BookOpen />}
-            title="Monitor Progress"
-            text="Parents only see their own children's academic information."
+          <Feature
+            icon="📊"
+            title="Child Performance"
+            text="Parents only see the attendance, marks and performance of their own children."
           />
 
-          <FeatureCard
-            icon={<Wallet />}
-            title="Manage Fees"
-            text="Schools can manage balances and receipt verification."
+          <Feature
+            icon="💳"
+            title="Fee Management"
+            text="School finance staff manage payments, balances and receipts."
           />
         </div>
       </section>
@@ -1025,30 +773,32 @@ function PublicHome({
           </div>
 
           <div>
-            EduLink{" "}
-            <span>ESWATINI</span>
+            EduLink <span>ESWATINI</span>
           </div>
         </div>
 
         <p>
-          Fictional prototype data. Not
-          affiliated with ECESWA or SNAT.
+          EduLink Eswatini demonstration
+          prototype.
         </p>
       </footer>
 
       {loginOpen && (
         <LoginModal
-          close={() => setLoginOpen(false)}
-          loginUser={loginUser}
+          onClose={() => setLoginOpen(false)}
+          onLogin={(account) => {
+            setLoginOpen(false);
+            onLogin(account);
+          }}
         />
       )}
 
-      {registerOpen && (
+      {registrationOpen && (
         <SchoolRegistration
           data={data}
           setData={setData}
-          close={() =>
-            setRegisterOpen(false)
+          onClose={() =>
+            setRegistrationOpen(false)
           }
         />
       )}
@@ -1056,9 +806,9 @@ function PublicHome({
   );
 }
 
-/* =======================================================
+/* =========================================================
    PUBLIC HEADER
-======================================================= */
+   ========================================================= */
 
 function PublicHeader({
   onLogin,
@@ -1115,861 +865,895 @@ function PublicHeader({
   );
 }
 
-/* =======================================================
+/* =========================================================
+   SCHOOL PROFILE
+   ========================================================= */
+
+function SchoolProfile({
+  school,
+  onBack,
+  onLogin
+}) {
+  return (
+    <section className="profilePage">
+      <button
+        className="backBtn"
+        onClick={onBack}
+      >
+        ← Back to schools
+      </button>
+
+      <div className="profileHero">
+        <div>
+          <span className="eyebrow">
+            APPROVED SCHOOL
+          </span>
+
+          <h1>{school.name}</h1>
+
+          <p>
+            Centre Number:{" "}
+            <b>{school.centre}</b> •{" "}
+            {school.location} •{" "}
+            {school.type}
+          </p>
+        </div>
+
+        <span className="openBadge">
+          {school.admission === "OPEN"
+            ? "ADMISSIONS OPEN"
+            : "ADMISSIONS CLOSED"}
+        </span>
+      </div>
+
+      <div className="profileGrid">
+        <div className="infoPanel">
+          <h3>Available spaces</h3>
+
+          <div className="bigNumber">
+            {totalSpaces(school.spaces)}
+          </div>
+
+          <div className="spaceRows">
+            {Object.entries(
+              school.spaces || {}
+            ).map(([grade, number]) => (
+              <div key={grade}>
+                <span>{grade}</span>
+
+                <b>
+                  {number > 0
+                    ? number
+                    : "FULL"}
+                </b>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="infoPanel">
+          <h3>School fees</h3>
+
+          <div className="feeAmount">
+            E{" "}
+            {Number(
+              school.fees || 0
+            ).toLocaleString()}
+          </div>
+
+          <p>
+            Demonstration annual school
+            fees. Parents must log in before
+            applying.
+          </p>
+
+          <button
+            className="primary"
+            onClick={onLogin}
+          >
+            Login to Apply
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================
    LOGIN
-======================================================= */
+   ========================================================= */
 
 function LoginModal({
-  close,
-  loginUser
+  onClose,
+  onLogin
 }) {
-  const choices = [
-    ["Parent", "parent@demo.sz", UserPlus],
-    ["Teacher", "teacher@demo.sz", GraduationCap],
-    ["Principal", "principal@demo.sz", UserCheck],
-    [
-      "Deputy Principal",
-      "deputy@demo.sz",
-      UserCheck
-    ],
-    ["Accountant", "accountant@demo.sz", Wallet],
-    ["Secretary", "secretary@demo.sz", MessageSquare],
-    ["System Admin", "admin@demo.sz", Settings]
-  ];
-
   const [email, setEmail] =
     useState("parent@demo.sz");
 
   const [password, setPassword] =
-    useState(DEMO_PASSWORD);
+    useState(PASSWORD);
 
   const [error, setError] =
     useState("");
 
-  const account =
-    DEMO_ACCOUNTS[
-      email.toLowerCase()
-    ];
-
-  function selectAccount(address) {
-    setEmail(address);
-    setPassword(DEMO_PASSWORD);
-    setError("");
-  }
-
   function submit(event) {
     event.preventDefault();
 
-    const selected =
-      DEMO_ACCOUNTS[
-        email.trim().toLowerCase()
-      ];
+    const address =
+      email.trim().toLowerCase();
 
-    if (
-      !selected ||
-      password !== DEMO_PASSWORD
-    ) {
+    const account = ACCOUNTS[address];
+
+    if (!account) {
       setError(
-        "Incorrect demo email or password."
+        "Account not found. Use one of the demonstration accounts."
       );
       return;
     }
 
-    loginUser({
-      email:
-        email.trim().toLowerCase(),
-      ...selected
-    });
+    if (password !== PASSWORD) {
+      setError(
+        "Incorrect password. Demo password is demo123."
+      );
+      return;
+    }
 
-    close();
+    onLogin({
+      email: address,
+      ...account
+    });
   }
 
   return (
-    <div className="modalBackdrop">
-      <div className="modal">
+    <Modal
+      title="Login to EduLink"
+      onClose={onClose}
+    >
+      <p className="muted">
+        One login for every EduLink user.
+        Your role determines what you can
+        access.
+      </p>
+
+      <div className="loginRoleGrid">
+        {Object.entries(ACCOUNTS).map(
+          ([address, account]) => (
+            <button
+              type="button"
+              className="loginRoleCard"
+              key={address}
+              onClick={() => {
+                setEmail(address);
+                setPassword(PASSWORD);
+                setError("");
+              }}
+            >
+              <span className="loginRoleIcon">
+                <UserCheck size={18} />
+              </span>
+
+              <span className="loginRoleText">
+                <b>{account.role}</b>
+                <small>{address}</small>
+              </span>
+
+              <ChevronRight size={16} />
+            </button>
+          )
+        )}
+      </div>
+
+      <form onSubmit={submit}>
+        <label>
+          Email
+          <input
+            value={email}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
+          />
+        </label>
+
+        <div className="demoBox">
+          Demo password: <b>demo123</b>
+        </div>
+
         <button
-          className="modalClose"
-          onClick={close}
+          type="submit"
+          className="primary full"
         >
-          <X />
+          Login
         </button>
 
-        <div className="modalHeader">
-          <div className="brandIcon">
-            <ShieldCheck />
+        {error && (
+          <div className="error">
+            {error}
           </div>
-
-          <div>
-            <h2>Login to EduLink</h2>
-
-            <p>
-              Choose a demo role.
-            </p>
-          </div>
-        </div>
-
-        <div className="loginRoleGrid">
-          {choices.map(
-            ([label, address, Icon]) => (
-              <button
-                type="button"
-                key={label}
-                className={
-                  email === address
-                    ? "loginRoleCard selected"
-                    : "loginRoleCard"
-                }
-                onClick={() =>
-                  selectAccount(
-                    address
-                  )
-                }
-              >
-                <Icon size={18} />
-
-                <span>
-                  <b>{label}</b>
-                  <small>
-                    {address}
-                  </small>
-                </span>
-
-                <ChevronRight
-                  size={16}
-                />
-              </button>
-            )
-          )}
-        </div>
-
-        <form onSubmit={submit}>
-          <label>
-            Email
-            <input
-              value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value
-                )
-              }
-            />
-          </label>
-
-          <div className="demoBox">
-            Demo password:
-            <strong>
-              {" "}
-              {DEMO_PASSWORD}
-            </strong>
-          </div>
-
-          <button
-            className="primary full"
-            type="submit"
-          >
-            Login
-          </button>
-
-          {account && (
-            <p className="muted">
-              Role:{" "}
-              <strong>
-                {account.role}
-              </strong>
-            </p>
-          )}
-
-          {error && (
-            <div className="error">
-              {error}
-            </div>
-          )}
-        </form>
-      </div>
-    </div>
+        )}
+      </form>
+    </Modal>
   );
 }
 
-/* =======================================================
+/* =========================================================
    SCHOOL REGISTRATION
-======================================================= */
+   ========================================================= */
 
 function SchoolRegistration({
   data,
   setData,
-  close
+  onClose
 }) {
-  const [form, setForm] = useState({
-    name: "",
-    centre: "",
-    location: "",
-    type: "High School",
-    phone: "",
-    email: "",
-    principal: "",
-    deputy: "",
-    staff: ""
-  });
+  const [form, setForm] =
+    useState({
+      name: "",
+      centre: "",
+      location: "",
+      type: "High School",
+      principal: "",
+      deputy: "",
+      accountant: "",
+      secretary: "",
+      teachers: ""
+    });
 
   const [submitted, setSubmitted] =
     useState(false);
 
   function update(field, value) {
-    setForm({
-      ...form,
+    setForm((current) => ({
+      ...current,
       [field]: value
-    });
+    }));
   }
 
   function submit(event) {
     event.preventDefault();
 
     if (
-      !form.name ||
-      !form.centre ||
-      !form.location ||
-      !form.principal
+      !form.name.trim() ||
+      !form.centre.trim() ||
+      !form.location.trim() ||
+      !form.principal.trim()
     ) {
+      alert(
+        "School name, Centre Number, location and Principal are required."
+      );
       return;
     }
 
-    const teachers = form.staff
-      .split(",")
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name, index) => ({
-        id:
-          "PSTAFF-" +
-          Date.now() +
-          "-" +
-          index,
-        name,
-        role: "Teacher"
-      }));
-
-    const pending = {
-      id:
-        "PENDING-" +
-        Date.now(),
-
-      name: form.name,
-      centre: form.centre,
-      location: form.location,
+    const pendingSchool = {
+      id: `PS-${Date.now()}`,
+      name: form.name.trim(),
+      centre: form.centre.trim(),
+      location: form.location.trim(),
       type: form.type,
-      phone: form.phone,
-      email: form.email,
-      status: "PENDING",
-
-      admission: "CLOSED",
-
       fees: 0,
-
-      spaces: {},
-
-      staff: [
-        {
-          id:
-            "PSTAFF-" +
-            Date.now() +
-            "-P",
-          name: form.principal,
-          role: "Principal"
-        },
-        {
-          id:
-            "PSTAFF-" +
-            Date.now() +
-            "-D",
-          name: form.deputy,
-          role: "Deputy Principal"
-        },
-        ...teachers
-      ]
+      admission: "OPEN",
+      status: "PENDING",
+      spaces: {
+        "Form 1": 0,
+        "Form 2": 0,
+        "Form 3": 0,
+        "Form 4": 0,
+        "Form 5": 0
+      },
+      registration: {
+        principal: form.principal.trim(),
+        deputy: form.deputy.trim(),
+        accountant: form.accountant.trim(),
+        secretary: form.secretary.trim(),
+        teachers: form.teachers
+          .split(",")
+          .map((name) => name.trim())
+          .filter(Boolean)
+      }
     };
 
-    setData({
-      ...data,
+    setData((current) => ({
+      ...current,
       pendingSchools: [
-        ...data.pendingSchools,
-        pending
+        ...current.pendingSchools,
+        pendingSchool
       ]
-    });
+    }));
 
     setSubmitted(true);
   }
 
   return (
-    <div className="modalBackdrop">
-      <div className="modal large">
-        <button
-          className="modalClose"
-          onClick={close}
-        >
-          <X />
-        </button>
+    <Modal
+      title="Register Your School"
+      onClose={onClose}
+    >
+      {submitted ? (
+        <>
+          <div className="successBox">
+            <CheckCircle />
+            School registration submitted.
+          </div>
 
-        {!submitted ? (
-          <>
-            <h2>
-              Register Your School
-            </h2>
+          <p className="muted">
+            The school now appears in the
+            System Admin's Pending Schools
+            section for verification.
+          </p>
 
-            <p className="muted">
-              Submitted schools appear
-              automatically in the System
-              Admin's pending-school queue.
-            </p>
+          <button
+            className="primary full"
+            onClick={onClose}
+          >
+            Done
+          </button>
+        </>
+      ) : (
+        <form onSubmit={submit}>
+          <div className="formGrid">
+            <label>
+              School name *
+              <input
+                value={form.name}
+                onChange={(event) =>
+                  update(
+                    "name",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
 
-            <form onSubmit={submit}>
-              <div className="formGrid">
-                <label>
-                  School name*
-                  <input
-                    value={form.name}
-                    onChange={(e) =>
-                      update(
-                        "name",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </label>
+            <label>
+              Centre Number *
+              <input
+                value={form.centre}
+                onChange={(event) =>
+                  update(
+                    "centre",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
 
-                <label>
-                  Centre Number*
-                  <input
-                    value={form.centre}
-                    onChange={(e) =>
-                      update(
-                        "centre",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </label>
+            <label>
+              Location *
+              <input
+                value={form.location}
+                onChange={(event) =>
+                  update(
+                    "location",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
 
-                <label>
-                  Location*
-                  <input
-                    value={form.location}
-                    onChange={(e) =>
-                      update(
-                        "location",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </label>
-
-                <label>
-                  School type
-                  <select
-                    value={form.type}
-                    onChange={(e) =>
-                      update(
-                        "type",
-                        e.target.value
-                      )
-                    }
-                  >
-                    <option>
-                      High School
-                    </option>
-
-                    <option>
-                      Primary School
-                    </option>
-                  </select>
-                </label>
-
-                <label>
-                  School phone
-                  <input
-                    value={form.phone}
-                    onChange={(e) =>
-                      update(
-                        "phone",
-                        e.target.value
-                      )
-                    }
-                  />
-                </label>
-
-                <label>
-                  School email
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) =>
-                      update(
-                        "email",
-                        e.target.value
-                      )
-                    }
-                  />
-                </label>
-
-                <label>
-                  Principal name*
-                  <input
-                    value={
-                      form.principal
-                    }
-                    onChange={(e) =>
-                      update(
-                        "principal",
-                        e.target.value
-                      )
-                    }
-                    required
-                  />
-                </label>
-
-                <label>
-                  Deputy Principal name
-                  <input
-                    value={form.deputy}
-                    onChange={(e) =>
-                      update(
-                        "deputy",
-                        e.target.value
-                      )
-                    }
-                  />
-                </label>
-              </div>
-
-              <label>
-                Staff names
-                <textarea
-                  value={form.staff}
-                  onChange={(e) =>
-                    update(
-                      "staff",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Example: John Dlamini, Mary Mamba, Peter Nkosi"
-                />
-              </label>
-
-              <button
-                className="primary full"
-                type="submit"
+            <label>
+              School type
+              <select
+                value={form.type}
+                onChange={(event) =>
+                  update(
+                    "type",
+                    event.target.value
+                  )
+                }
               >
-                Submit School Registration
+                <option>High School</option>
+                <option>Secondary School</option>
+                <option>Primary School</option>
+              </select>
+            </label>
+
+            <label>
+              Principal *
+              <input
+                value={form.principal}
+                onChange={(event) =>
+                  update(
+                    "principal",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+            <label>
+              Deputy Principal
+              <input
+                value={form.deputy}
+                onChange={(event) =>
+                  update(
+                    "deputy",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+            <label>
+              Accountant
+              <input
+                value={form.accountant}
+                onChange={(event) =>
+                  update(
+                    "accountant",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+            <label>
+              Secretary
+              <input
+                value={form.secretary}
+                onChange={(event) =>
+                  update(
+                    "secretary",
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+            <label className="fullWidth">
+              Teacher names
+              <input
+                value={form.teachers}
+                onChange={(event) =>
+                  update(
+                    "teachers",
+                    event.target.value
+                  )
+                }
+                placeholder="Separate teacher names with commas"
+              />
+            </label>
+          </div>
+
+          <div className="demoBox">
+            Submitted schools are not immediately
+            approved. The System Admin must first
+            verify the information.
+          </div>
+
+          <button
+            type="submit"
+            className="primary full"
+          >
+            Submit School Registration
+          </button>
+        </form>
+      )}
+    </Modal>
+  );
+}
+
+/* =========================================================
+   AUTHENTICATED APP
+   ========================================================= */
+
+function AuthenticatedApp({
+  user,
+  data,
+  setData,
+  page,
+  setPage,
+  logout,
+  mobileMenu,
+  setMobileMenu
+}) {
+  const allowed =
+    ROLE_PERMISSIONS[user.role] || [];
+
+  const school =
+    user.schoolId
+      ? data.schools.find(
+          (item) =>
+            item.id === user.schoolId
+        )
+      : null;
+
+  return (
+    <div className="app">
+      <aside
+        className={
+          "sidebar " +
+          (mobileMenu ? "open" : "")
+        }
+      >
+        <div className="brand">
+          <div className="brandIcon">
+            <ShieldCheck size={22} />
+          </div>
+
+          <div>
+            EduLink <span>ESWATINI</span>
+          </div>
+        </div>
+
+        <div className="roleBadge">
+          {user.role}
+        </div>
+
+        <nav>
+          {allowed.map((key) => {
+            const meta = NAVIGATION[key];
+
+            if (!meta) {
+              return null;
+            }
+
+            const [label, Icon] = meta;
+
+            return (
+              <button
+                key={key}
+                className={
+                  page === key
+                    ? "navActive"
+                    : ""
+                }
+                onClick={() => {
+                  setPage(key);
+                  setMobileMenu(false);
+                }}
+              >
+                <Icon size={18} />
+                {label}
               </button>
-            </form>
-          </>
-        ) : (
-          <>
-            <div className="successBox">
-              <CheckCircle />
-              School registration submitted.
-            </div>
+            );
+          })}
+        </nav>
 
-            <p className="muted">
-              The System Admin will verify
-              that the school exists and
-              confirm that the submitted
-              information is truthful before
-              approving or rejecting it.
-            </p>
+        <button
+          className="logout"
+          onClick={logout}
+        >
+          <LogOut size={18} />
+          Sign out
+        </button>
+      </aside>
 
-            <button
-              className="primary full"
-              onClick={close}
-            >
-              Done
-            </button>
-          </>
-        )}
-      </div>
+      <main className="main">
+        <header className="topbar">
+          <button
+            className="mobileBtn"
+            onClick={() =>
+              setMobileMenu(
+                (current) => !current
+              )
+            }
+          >
+            {mobileMenu ? (
+              <X />
+            ) : (
+              <Menu />
+            )}
+          </button>
+
+          <div>
+            <strong>{user.name}</strong>
+
+            <small>
+              {user.role}
+
+              {school
+                ? ` • ${school.name}`
+                : ""}
+            </small>
+          </div>
+
+          <div className="topPill">
+            DEMO MODE
+          </div>
+        </header>
+
+        <div className="content">
+          <AuthenticatedPage
+            page={page}
+            user={user}
+            data={data}
+            setData={setData}
+            setPage={setPage}
+          />
+        </div>
+      </main>
     </div>
   );
 }
 
-/* =======================================================
+/* =========================================================
    PAGE ROUTER
-======================================================= */
+   ========================================================= */
 
-function PageRouter({
+function AuthenticatedPage({
   page,
   user,
   data,
   setData,
   setPage
 }) {
-  if (page === "dashboard") {
-    return (
-      <Dashboard
-        user={user}
-        data={data}
-        setPage={setPage}
-      />
-    );
-  }
+  switch (page) {
+    case "dashboard":
+      return (
+        <Dashboard
+          user={user}
+          data={data}
+          setPage={setPage}
+        />
+      );
 
-  if (page === "schools") {
-    return (
-      <ParentSchoolDirectory
-        user={user}
-        data={data}
-        setPage={setPage}
-      />
-    );
-  }
+    case "schools":
+      return (
+        <ParentSchools
+          user={user}
+          data={data}
+          setPage={setPage}
+        />
+      );
 
-  if (page === "admissions") {
-    return (
-      <Admissions
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "admissions":
+      return (
+        <Admissions
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "students") {
-    return (
-      <Students
-        user={user}
-        data={data}
-      />
-    );
-  }
+    case "students":
+      return (
+        <Students
+          user={user}
+          data={data}
+        />
+      );
 
-  if (page === "teachers") {
-    return (
-      <Teachers
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "teachers":
+      return (
+        <StaffManagement
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "attendance") {
-    return (
-      <Attendance
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "attendance":
+      return (
+        <Attendance
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "marks") {
-    return (
-      <Marks
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "marks":
+      return (
+        <Marks
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "finance") {
-    return (
-      <Finance
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "finance":
+      return (
+        <Finance
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "spaces") {
-    return (
-      <Spaces
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "children":
+      return (
+        <MyChildren
+          user={user}
+          data={data}
+        />
+      );
 
-  if (page === "resources") {
-    return (
-      <Resources
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "applications":
+      return (
+        <ParentApplications
+          user={user}
+          data={data}
+        />
+      );
 
-  if (page === "notifications") {
-    return (
-      <Notifications
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "fees":
+      return (
+        <ParentFees
+          user={user}
+          data={data}
+        />
+      );
 
-  if (page === "calendar") {
-    return (
-      <CalendarPage
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "notifications":
+      return (
+        <Notifications
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "children") {
-    return (
-      <ParentChildren
-        user={user}
-        data={data}
-      />
-    );
-  }
+    case "calendar":
+      return (
+        <CalendarPage
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "applications") {
-    return (
-      <ParentApplications
-        user={user}
-        data={data}
-        setData={setData}
-      />
-    );
-  }
+    case "reports":
+      return (
+        <Reports
+          user={user}
+          data={data}
+        />
+      );
 
-  if (page === "attendance") {
-    return null;
-  }
+    case "settings":
+      return (
+        <AdminSchools
+          user={user}
+          data={data}
+          setData={setData}
+        />
+      );
 
-  if (page === "fees") {
-    return (
-      <ParentFees
-        user={user}
-        data={data}
-      />
-    );
+    default:
+      return (
+        <Dashboard
+          user={user}
+          data={data}
+          setPage={setPage}
+        />
+      );
   }
-
-  if (page === "reports") {
-    return (
-      <Reports
-        user={user}
-        data={data}
-      />
-    );
-  }
-
-  if (page === "settings") {
-    return (
-      <SettingsPage
-        user={user}
-        data={data}
-      />
-    );
-  }
-
-  return (
-    <Dashboard
-      user={user}
-      data={data}
-      setPage={setPage}
-    />
-  );
 }
 
-/* =======================================================
+/* =========================================================
    DASHBOARD
-======================================================= */
+   ========================================================= */
 
 function Dashboard({
   user,
   data,
   setPage
 }) {
-  const school = data.schools.find(
-    (item) =>
-      item.id === user.schoolId
-  );
-
-  const schoolStudents =
-    data.students.filter(
-      (student) =>
-        student.schoolId ===
-        user.schoolId
-    );
-
-  const applications =
-    data.applications.filter(
-      (application) =>
-        application.schoolId ===
-        user.schoolId
-    );
-
-  const payments =
-    data.payments.filter(
-      (payment) =>
-        schoolStudents.some(
-          (student) =>
-            student.id ===
-            payment.studentId
+  const school =
+    user.schoolId
+      ? data.schools.find(
+          (item) =>
+            item.id === user.schoolId
         )
-    );
+      : null;
 
-  if (user.role === "Parent") {
-    const children =
-      data.students.filter(
-        (student) =>
-          student.parentEmail ===
-          user.email
-      );
-
+  if (user.role === "System Admin") {
     return (
       <>
         <HeaderBlock
-          eyebrow="PARENT DASHBOARD"
-          title="My family"
-          text="Only information belonging to your own children is shown."
+          eyebrow="SYSTEM ADMINISTRATION"
+          title="EduLink Administration"
+          text="Manage school onboarding and platform operations."
         />
 
         <div className="statGrid">
           <Stat
-            title="My Children"
-            value={children.length}
-            icon={<Users />}
+            icon={<School />}
+            value={data.schools.length}
+            label="Registered schools"
           />
 
           <Stat
-            title="Applications"
+            icon={<Clock />}
+            value={data.pendingSchools.length}
+            label="Pending schools"
+          />
+
+          <Stat
+            icon={<CheckCircle />}
             value={
-              data.applications.filter(
-                (a) =>
-                  a.parentEmail ===
-                  user.email
+              data.schools.filter(
+                (schoolItem) =>
+                  schoolItem.status ===
+                  "APPROVED"
               ).length
             }
-            icon={<FileText />}
-          />
-
-          <Stat
-            title="Notifications"
-            value={
-              data.notifications.length
-            }
-            icon={<MessageSquare />}
+            label="Approved schools"
           />
         </div>
 
-        <Panel title="My children">
-          {children.length === 0 ? (
-            <Empty text="No children are currently linked to this demo parent." />
-          ) : (
-            <div className="childCards">
-              {children.map(
-                (child) => (
-                  <div
-                    className="childCard"
-                    key={child.id}
-                  >
-                    <div>
-                      <strong>
-                        {child.name}
-                      </strong>
+        <Panel title="Admin responsibility">
+          <p className="muted">
+            Verify that a school exists and
+            that submitted information is true
+            before approving or rejecting its
+            registration.
+          </p>
 
-                      <span>
-                        {child.form}
-                      </span>
-                    </div>
-
-                    <b>
-                      {studentAverage(
-                        child
-                      )}
-                      %
-                    </b>
-                  </div>
-                )
-              )}
-            </div>
-          )}
+          <button
+            className="primary"
+            onClick={() =>
+              setPage("settings")
+            }
+          >
+            Open School Management
+          </button>
         </Panel>
       </>
     );
   }
 
-  if (user.role === "System Admin") {
-    const pending =
-      data.pendingSchools.length;
+  if (user.role === "Parent") {
+    const children =
+      data.students.filter(
+        (student) =>
+          student.parentEmail === user.email
+      );
 
     return (
       <>
         <HeaderBlock
-          eyebrow="SYSTEM ADMIN"
-          title="Platform administration"
-          text="The System Admin is responsible for the smooth running of the EduLink platform and school verification."
+          eyebrow="PARENT PORTAL"
+          title="Welcome back"
+          text="Your EduLink parent dashboard shows only information belonging to your children."
         />
 
         <div className="statGrid">
           <Stat
-            title="Registered Schools"
-            value={data.schools.length}
-            icon={<School />}
-          />
-
-          <Stat
-            title="Pending Schools"
-            value={pending}
-            icon={<Clock />}
-          />
-
-          <Stat
-            title="Total Students"
-            value={data.students.length}
             icon={<Users />}
+            value={children.length}
+            label="My children"
+          />
+
+          <Stat
+            icon={<FileText />}
+            value={
+              data.applications.filter(
+                (application) =>
+                  application.parentEmail ===
+                  user.email
+              ).length
+            }
+            label="My applications"
+          />
+
+          <Stat
+            icon={<Receipt />}
+            value={
+              data.payments.filter(
+                (payment) =>
+                  payment.parentEmail ===
+                  user.email
+              ).length
+            }
+            label="My fee records"
           />
         </div>
 
-        <Panel title="Pending school registrations">
-          {pending === 0 ? (
-            <Empty text="No pending school registrations." />
-          ) : (
-            <Table
-              headers={[
-                "School",
-                "Centre Number",
-                "Location",
-                "Status"
-              ]}
-              rows={data.pendingSchools.map(
-                (school) => [
-                  school.name,
-                  school.centre,
-                  school.location,
-                  <Status
-                    status={
-                      school.status
-                    }
-                  />
-                ]
-              )}
-            />
-          )}
+        <Panel title="Parent access">
+          <p className="muted">
+            You can find schools, apply,
+            upload documents and monitor only
+            your accepted children's information.
+          </p>
         </Panel>
       </>
     );
@@ -1982,142 +1766,97 @@ function Dashboard({
         title={
           school
             ? school.name
-            : "School dashboard"
+            : "EduLink Dashboard"
         }
-        text="Role-based school management dashboard."
+        text={`Welcome ${user.name}. Your access is restricted to your assigned role and school.`}
       />
 
       <div className="statGrid">
         <Stat
-          title="Students"
-          value={
-            schoolStudents.length
-          }
           icon={<Users />}
-        />
-
-        <Stat
-          title="Applications"
-          value={applications.length}
-          icon={<FileText />}
-        />
-
-        <Stat
-          title="Available Spaces"
           value={
-            school
-              ? totalSpaces(
-                  school.spaces
-                )
+            user.schoolId
+              ? data.students.filter(
+                  (student) =>
+                    student.schoolId ===
+                    user.schoolId
+                ).length
               : 0
           }
-          icon={<Boxes />}
+          label="Students"
         />
 
-        {user.role !== "Teacher" &&
-          user.role !== "Secretary" && (
-            <Stat
-              title="Pending Receipts"
-              value={
-                payments.filter(
-                  (payment) =>
-                    payment.status ===
-                    "PENDING"
+        <Stat
+          icon={<GraduationCap />}
+          value={
+            user.schoolId
+              ? data.staff.filter(
+                  (member) =>
+                    member.schoolId ===
+                    user.schoolId
                 ).length
-              }
-              icon={<Receipt />}
-            />
-          )}
+              : 0
+          }
+          label="School staff"
+        />
+
+        <Stat
+          icon={<FileText />}
+          value={
+            user.schoolId
+              ? data.applications.filter(
+                  (application) =>
+                    application.schoolId ===
+                      user.schoolId &&
+                    application.status ===
+                      "PENDING"
+                ).length
+              : 0
+          }
+          label="Pending applications"
+        />
       </div>
 
-      <div className="dashboardGrid">
-        <Panel title="Attendance">
-          <div className="bigMetric">
-            {schoolStudents.length
-              ? Math.round(
-                  schoolStudents.reduce(
-                    (sum, student) =>
-                      sum +
-                      student.attendance,
-                    0
-                  ) /
-                    schoolStudents.length
-                )
-              : 0}
-            %
-          </div>
-
-          <p className="muted">
-            School attendance overview.
-          </p>
-        </Panel>
-
-        <Panel title="Academic performance">
-          <div className="bigMetric">
-            {schoolStudents.length
-              ? Math.round(
-                  schoolStudents.reduce(
-                    (sum, student) =>
-                      sum +
-                      studentAverage(
-                        student
-                      ),
-                    0
-                  ) /
-                    schoolStudents.length
-                )
-              : 0}
-            %
-          </div>
-
-          <p className="muted">
-            Current demo average.
-          </p>
-        </Panel>
-      </div>
+      <Panel title="Role-based access">
+        <p className="muted">
+          EduLink only displays functions
+          permitted for your role.
+        </p>
+      </Panel>
     </>
   );
 }
 
-/* =======================================================
-   SCHOOL DIRECTORY FOR PARENT
-======================================================= */
+/* =========================================================
+   PARENT SCHOOL SEARCH
+   ========================================================= */
 
-function ParentSchoolDirectory({
-  user,
+function ParentSchools({
   data,
   setPage
 }) {
-  const [search, setSearch] =
-    useState("");
+  const [query, setQuery] = useState("");
 
-  const schools =
-    data.schools.filter(
-      (school) => {
-        const text =
-          (
-            school.name +
-            " " +
-            school.centre +
-            " " +
-            school.location
-          ).toLowerCase();
-
-        return (
-          school.status ===
-            "APPROVED" &&
-          text.includes(
-            search.toLowerCase()
-          )
-        );
+  const schools = data.schools.filter(
+    (school) => {
+      if (school.status !== "APPROVED") {
+        return false;
       }
-    );
+
+      const text =
+        `${school.name} ${school.centre} ${school.location}`.toLowerCase();
+
+      return text.includes(
+        query.toLowerCase()
+      );
+    }
+  );
 
   return (
     <>
       <HeaderBlock
         eyebrow="SCHOOL DIRECTORY"
-        title="Find a school"
+        title="Find a School"
         text="You are already logged in. There is no second parent login."
       />
 
@@ -2125,9 +1864,9 @@ function ParentSchoolDirectory({
         <Search />
 
         <input
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
+          value={query}
+          onChange={(event) =>
+            setQuery(event.target.value)
           }
           placeholder="School name, Centre Number or location"
         />
@@ -2147,11 +1886,7 @@ function ParentSchoolDirectory({
               <h3>{school.name}</h3>
 
               <p>
-                Centre Number:{" "}
-                {school.centre}
-              </p>
-
-              <p>
+                Centre {school.centre} •{" "}
                 {school.location}
               </p>
 
@@ -2168,7 +1903,7 @@ function ParentSchoolDirectory({
               </div>
 
               <button
-                className="primary"
+                className="primary smallWide"
                 onClick={() =>
                   setPage("applications")
                 }
@@ -2183,29 +1918,21 @@ function ParentSchoolDirectory({
   );
 }
 
-/* =======================================================
-   ADMISSIONS
-======================================================= */
+/* =========================================================
+   APPLICATIONS - SCHOOL SIDE
+   ========================================================= */
 
 function Admissions({
   user,
   data,
   setData
 }) {
-  const schoolId = user.schoolId;
-
   const applications =
     data.applications.filter(
       (application) =>
         application.schoolId ===
-        schoolId
+        user.schoolId
     );
-
-  /*
-  IMPORTANT:
-  This function deliberately avoids the broken
-  conditional expression from the previous main.jsx.
-  */
 
   function decideApplication(
     application,
@@ -2213,33 +1940,28 @@ function Admissions({
   ) {
     if (
       decision === "APPROVED" &&
-      application.status !==
-        "APPROVED"
+      application.status !== "APPROVED"
     ) {
       const school =
         data.schools.find(
           (item) =>
-            item.id === schoolId
+            item.id ===
+            user.schoolId
         );
 
       if (!school) {
-        alert(
-          "School could not be found."
-        );
         return;
       }
 
-      const currentSpaces = Number(
-        school.spaces[
+      const available = Number(
+        school.spaces?.[
           application.form
         ] || 0
       );
 
-      if (currentSpaces <= 0) {
+      if (available <= 0) {
         alert(
-          "No available space for " +
-            application.form +
-            "."
+          "There is no available space for this grade/form."
         );
         return;
       }
@@ -2248,7 +1970,8 @@ function Admissions({
         data.schools.map(
           (item) => {
             if (
-              item.id !== schoolId
+              item.id !==
+              user.schoolId
             ) {
               return item;
             }
@@ -2258,7 +1981,10 @@ function Admissions({
               spaces: {
                 ...item.spaces,
                 [application.form]:
-                  currentSpaces - 1
+                  Math.max(
+                    0,
+                    available - 1
+                  )
               }
             };
           }
@@ -2281,31 +2007,43 @@ function Admissions({
           }
         );
 
-      const newNotification = {
-        id:
-          "NOT-" +
-          Date.now(),
+      const existingStudent =
+        data.students.find(
+          (student) =>
+            student.id ===
+            application.studentId
+        );
 
-        title:
-          "Application approved",
+      let updatedStudents =
+        data.students;
 
-        body:
-          application.childName +
-          "'s school application has been approved.",
-
-        audience:
-          application.parentEmail
-      };
+      if (!existingStudent) {
+        updatedStudents = [
+          ...data.students,
+          {
+            id:
+              application.studentId ||
+              `STU-${Date.now()}`,
+            name:
+              application.childName,
+            form:
+              application.form,
+            schoolId:
+              application.schoolId,
+            parentEmail:
+              application.parentEmail,
+            attendance: 0,
+            subjects: {}
+          }
+        ];
+      }
 
       setData({
         ...data,
         schools: updatedSchools,
         applications:
           updatedApplications,
-        notifications: [
-          ...data.notifications,
-          newNotification
-        ]
+        students: updatedStudents
       });
 
       return;
@@ -2328,43 +2066,10 @@ function Admissions({
         }
       );
 
-    let title =
-      "Application updated";
-
-    let body =
-      application.childName +
-      " application status: " +
-      decision;
-
-    if (decision === "WAITLIST") {
-      title =
-        "Application wait-listed";
-    }
-
-    if (decision === "DECLINED") {
-      title =
-        "Application declined";
-    }
-
-    const newNotification = {
-      id:
-        "NOT-" +
-        Date.now(),
-
-      title,
-      body,
-      audience:
-        application.parentEmail
-    };
-
     setData({
       ...data,
       applications:
-        updatedApplications,
-      notifications: [
-        ...data.notifications,
-        newNotification
-      ]
+        updatedApplications
     });
   }
 
@@ -2372,13 +2077,15 @@ function Admissions({
     <>
       <HeaderBlock
         eyebrow="ADMISSIONS"
-        title="Application management"
-        text="Review applications and approve, decline or wait-list them."
+        title="Applications"
+        text="Review parent applications and approve, decline or wait-list them."
       />
 
-      <Panel title="Applications">
+      <Panel title="Active applications">
         {applications.length === 0 ? (
-          <Empty text="No applications yet. When a parent applies to this school, the application will appear here." />
+          <Empty
+            text="No applications yet. Parent applications will appear here automatically."
+          />
         ) : (
           <Table
             headers={[
@@ -2392,19 +2099,18 @@ function Admissions({
             rows={applications.map(
               (application) => [
                 application.parentName,
-
                 application.childName,
-
                 application.form,
 
                 <button
                   className="small"
+                  key="documents"
                   onClick={() => {
-                    const docs =
+                    const documents =
                       application.documents ||
                       [];
 
-                    if (!docs.length) {
+                    if (!documents.length) {
                       alert(
                         "No documents uploaded."
                       );
@@ -2412,10 +2118,10 @@ function Admissions({
                     }
 
                     alert(
-                      docs
+                      documents
                         .map(
-                          (doc) =>
-                            doc.name
+                          (document) =>
+                            document.name
                         )
                         .join("\n")
                     );
@@ -2426,12 +2132,16 @@ function Admissions({
                 </button>,
 
                 <Status
+                  key="status"
                   status={
                     application.status
                   }
                 />,
 
-                <div className="rowActions">
+                <div
+                  className="rowActions"
+                  key="actions"
+                >
                   <button
                     className="small good"
                     onClick={() =>
@@ -2477,60 +2187,54 @@ function Admissions({
   );
 }
 
-/* =======================================================
+/* =========================================================
    STUDENTS
-======================================================= */
+   ========================================================= */
 
 function Students({
   user,
   data
 }) {
   const students =
-    data.students
-      .filter(
-        (student) =>
-          student.schoolId ===
-          user.schoolId
-      )
-      .sort((a, b) =>
-        a.form.localeCompare(
-          b.form
-        )
-      );
+    data.students.filter(
+      (student) =>
+        student.schoolId ===
+        user.schoolId
+    );
+
+  const sorted =
+    [...students].sort(
+      (a, b) =>
+        a.form.localeCompare(b.form)
+    );
 
   return (
     <>
       <HeaderBlock
         eyebrow="STUDENTS"
-        title="Student register"
-        text="Students are grouped by Grade/Form with attendance and average performance."
+        title="Student Register"
+        text="Students are grouped by Grade/Form, attendance and average performance."
       />
 
-      <Panel title="All students">
+      <Panel title="Students">
         <Table
           headers={[
             "Grade/Form",
             "Student",
             "Attendance",
             "Average",
-            "Performance"
+            "Status"
           ]}
-          rows={students.map(
+          rows={sorted.map(
             (student) => [
               student.form,
-
               student.name,
-
-              student.attendance +
-                "%",
-
-              studentAverage(
+              `${student.attendance}%`,
+              `${averageStudent(
                 student
-              ) + "%",
-
-              studentAverage(
-                student
-              ) < 50 ? (
+              )}%`,
+              averageStudent(student) <
+              50 ? (
                 <span className="warn">
                   Attention
                 </span>
@@ -2547,114 +2251,160 @@ function Students({
   );
 }
 
-/* =======================================================
-   TEACHERS
-======================================================= */
+/* =========================================================
+   STAFF MANAGEMENT
+   ========================================================= */
 
-function Teachers({
+function StaffManagement({
   user,
   data,
   setData
 }) {
-  const school =
-    data.schools.find(
-      (item) =>
-        item.id === user.schoolId
-    );
+  const canManage =
+    user.role === "Principal" ||
+    user.role === "Deputy Principal";
 
   const staff =
-    school?.staff || [];
+    data.staff.filter(
+      (member) =>
+        member.schoolId ===
+        user.schoolId
+    );
 
-  const isLeadership =
-    user.role === "Principal" ||
-    user.role ===
-      "Deputy Principal";
-
-  function removeStaff(staffId) {
-    if (!isLeadership) {
+  function removeStaff(memberId) {
+    if (!canManage) {
       return;
     }
 
-    const updatedSchools =
-      data.schools.map(
-        (item) => {
-          if (
-            item.id !==
-            user.schoolId
-          ) {
-            return item;
-          }
-
-          return {
-            ...item,
-            staff: item.staff.filter(
-              (person) =>
-                person.id !==
-                staffId
-            )
-          };
-        }
+    const member =
+      data.staff.find(
+        (item) =>
+          item.id === memberId
       );
+
+    if (!member) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `Remove ${member.name} from this school?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
 
     setData({
       ...data,
-      schools: updatedSchools
+      staff: data.staff.filter(
+        (item) =>
+          item.id !== memberId
+      )
+    });
+  }
+
+  function addDemoStaff() {
+    if (!canManage) {
+      return;
+    }
+
+    const name =
+      window.prompt(
+        "Enter staff member name:"
+      );
+
+    if (!name) {
+      return;
+    }
+
+    const role =
+      window.prompt(
+        "Enter role: Teacher, Accountant or Secretary"
+      );
+
+    if (!role) {
+      return;
+    }
+
+    setData({
+      ...data,
+      staff: [
+        ...data.staff,
+        {
+          id: `STAFF-${Date.now()}`,
+          name,
+          role,
+          schoolId: user.schoolId,
+          subjects:
+            role === "Teacher"
+              ? ["Mathematics"]
+              : [],
+          grades:
+            role === "Teacher"
+              ? ["Form 1"]
+              : []
+        }
+      ]
     });
   }
 
   return (
     <>
       <HeaderBlock
-        eyebrow="STAFF"
-        title="School staff"
-        text="Principals and Deputy Principals can manage staff assigned to their school."
+        eyebrow="STAFF MANAGEMENT"
+        title="School Staff"
+        text="Principal and Deputy Principal can add or remove staff from their school."
+        action={
+          canManage ? (
+            <button
+              className="primary"
+              onClick={addDemoStaff}
+            >
+              <Plus size={16} />
+              Add Staff
+            </button>
+          ) : null
+        }
       />
 
-      <Panel title="Staff register">
+      <Panel title="Registered staff">
         <Table
           headers={[
             "Name",
             "Role",
             "Subjects",
-            "Grades",
+            "Grades/Forms",
             "Action"
           ]}
           rows={staff.map(
-            (person) => [
-              person.name,
+            (member) => [
+              member.name,
+              member.role,
+              member.subjects?.join(
+                ", "
+              ) || "—",
+              member.grades?.join(
+                ", "
+              ) || "—",
 
-              person.role,
-
-              person.subjects
-                ? person.subjects.join(
-                    ", "
-                  )
-                : "—",
-
-              person.grades
-                ? person.grades.join(
-                    ", "
-                  )
-                : "—",
-
-              isLeadership &&
-              person.role !==
-                "Principal" ? (
+              canManage ? (
                 <button
                   className="small danger"
+                  key="remove"
                   onClick={() =>
                     removeStaff(
-                      person.id
+                      member.id
                     )
                   }
                 >
-                  <UserMinus
-                    size={14}
-                  />
+                  <Trash2 size={14} />
                   Remove
                 </button>
               ) : (
-                "—"
+                <span className="muted">
+                  View only
+                </span>
               )
             ]
           )}
@@ -2664,9 +2414,372 @@ function Teachers({
   );
 }
 
-/* =======================================================
+/* =========================================================
+   MARKS
+   ========================================================= */
+
+function Marks({
+  user,
+  data,
+  setData
+}) {
+  const isTeacher =
+    user.role === "Teacher";
+
+  const students =
+    data.students.filter(
+      (student) => {
+        if (
+          student.schoolId !==
+          user.schoolId
+        ) {
+          return false;
+        }
+
+        if (!isTeacher) {
+          return true;
+        }
+
+        return (
+          user.grades?.includes(
+            student.form
+          ) || false
+        );
+      }
+    );
+
+  const subjects = isTeacher
+    ? user.subjects || []
+    : [
+        "Mathematics",
+        "English",
+        "Chemistry",
+        "Agriculture",
+        "Physics"
+      ];
+
+  function updateMark(
+    studentId,
+    subject,
+    field,
+    value
+  ) {
+    if (
+      isTeacher &&
+      !user.subjects.includes(subject)
+    ) {
+      return;
+    }
+
+    const number =
+      value === ""
+        ? ""
+        : Math.max(
+            0,
+            Math.min(100, Number(value))
+          );
+
+    const updatedStudents =
+      data.students.map(
+        (student) => {
+          if (
+            student.id !==
+            studentId
+          ) {
+            return student;
+          }
+
+          const currentSubject =
+            student.subjects?.[
+              subject
+            ] || {
+              test: "",
+              exam: "",
+              comment: ""
+            };
+
+          return {
+            ...student,
+            subjects: {
+              ...student.subjects,
+              [subject]: {
+                ...currentSubject,
+                [field]: number
+              }
+            }
+          };
+        }
+      );
+
+    setData({
+      ...data,
+      students: updatedStudents
+    });
+  }
+
+  function updateComment(
+    studentId,
+    subject,
+    comment
+  ) {
+    if (
+      isTeacher &&
+      !user.subjects.includes(subject)
+    ) {
+      return;
+    }
+
+    const updatedStudents =
+      data.students.map(
+        (student) => {
+          if (
+            student.id !==
+            studentId
+          ) {
+            return student;
+          }
+
+          const currentSubject =
+            student.subjects?.[
+              subject
+            ] || {
+              test: "",
+              exam: "",
+              comment: ""
+            };
+
+          return {
+            ...student,
+            subjects: {
+              ...student.subjects,
+              [subject]: {
+                ...currentSubject,
+                comment
+              }
+            }
+          };
+        }
+      );
+
+    setData({
+      ...data,
+      students: updatedStudents
+    });
+  }
+
+  return (
+    <>
+      <HeaderBlock
+        eyebrow="ACADEMIC PERFORMANCE"
+        title="Marks & Performance"
+        text={
+          isTeacher
+            ? "You can enter marks and comments only for subjects and grades/forms assigned to you."
+            : "School leadership can view academic performance across the school."
+        }
+      />
+
+      <Panel title="Student marks table">
+        <div className="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th>Name</th>
+
+                {subjects.map(
+                  (subject) => (
+                    <th
+                      key={subject}
+                      colSpan="2"
+                    >
+                      {subject}
+                    </th>
+                  )
+                )}
+
+                <th>Aggregate</th>
+              </tr>
+
+              <tr>
+                <th></th>
+                <th></th>
+
+                {subjects.map(
+                  (subject) => (
+                    <React.Fragment
+                      key={`${subject}-sub`}
+                    >
+                      <th>Test</th>
+                      <th>Exam</th>
+                    </React.Fragment>
+                  )
+                )}
+
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {students.map(
+                (student) => (
+                  <tr key={student.id}>
+                    <td>{student.form}</td>
+
+                    <td>
+                      <b>{student.name}</b>
+                    </td>
+
+                    {subjects.map(
+                      (subject) => {
+                        const mark =
+                          student
+                            .subjects?.[
+                            subject
+                          ] || {};
+
+                        return (
+                          <React.Fragment
+                            key={
+                              `${student.id}-${subject}`
+                            }
+                          >
+                            <td>
+                              {isTeacher ? (
+                                <input
+                                  className="markInput"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={
+                                    mark.test ??
+                                    ""
+                                  }
+                                  onChange={(
+                                    event
+                                  ) =>
+                                    updateMark(
+                                      student.id,
+                                      subject,
+                                      "test",
+                                      event
+                                        .target
+                                        .value
+                                    )
+                                  }
+                                />
+                              ) : (
+                                mark.test ??
+                                "—"
+                              )}
+                            </td>
+
+                            <td>
+                              {isTeacher ? (
+                                <input
+                                  className="markInput"
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={
+                                    mark.exam ??
+                                    ""
+                                  }
+                                  onChange={(
+                                    event
+                                  ) =>
+                                    updateMark(
+                                      student.id,
+                                      subject,
+                                      "exam",
+                                      event
+                                        .target
+                                        .value
+                                    )
+                                  }
+                                />
+                              ) : (
+                                mark.exam ??
+                                "—"
+                              )}
+                            </td>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+
+                    <td>
+                      <b>
+                        {aggregateStudent(
+                          student
+                        )}
+                      </b>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+
+      {isTeacher && (
+        <Panel title="Subject comments">
+          {students.map(
+            (student) => (
+              <div
+                className="commentRow"
+                key={student.id}
+              >
+                <b>{student.name}</b>
+
+                {subjects.map(
+                  (subject) => {
+                    const mark =
+                      student.subjects?.[
+                        subject
+                      ] || {};
+
+                    return (
+                      <label
+                        key={
+                          `${student.id}-${subject}-comment`
+                        }
+                      >
+                        {subject} comment
+                        <input
+                          value={
+                            mark.comment || ""
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            updateComment(
+                              student.id,
+                              subject,
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                          placeholder="Leave a comment..."
+                        />
+                      </label>
+                    );
+                  }
+                )}
+              </div>
+            )
+          )}
+        </Panel>
+      )}
+    </>
+  );
+}
+
+/* =========================================================
    ATTENDANCE
-======================================================= */
+   ========================================================= */
 
 function Attendance({
   user,
@@ -2680,29 +2793,26 @@ function Attendance({
         user.schoolId
     );
 
-  function markAbsent(id) {
-    const updated =
-      data.students.map(
-        (student) => {
-          if (
-            student.id !== id
-          ) {
-            return student;
-          }
-
-          return {
-            ...student,
-            attendance: Math.max(
-              0,
-              student.attendance - 1
-            )
-          };
-        }
-      );
+  function updateAttendance(
+    studentId,
+    value
+  ) {
+    const attendance = Math.max(
+      0,
+      Math.min(100, Number(value))
+    );
 
     setData({
       ...data,
-      students: updated
+      students: data.students.map(
+        (student) =>
+          student.id === studentId
+            ? {
+                ...student,
+                attendance
+              }
+            : student
+      )
     });
   }
 
@@ -2710,41 +2820,43 @@ function Attendance({
     <>
       <HeaderBlock
         eyebrow="ATTENDANCE"
-        title="Attendance register"
-        text="Teachers mark students who are absent. Students not marked absent are treated as present."
+        title="Student Attendance"
+        text="School staff can maintain attendance records."
       />
 
-      <Panel title="Today's register">
+      <Panel title="Attendance register">
         <Table
           headers={[
-            "Grade/Form",
+            "Form",
             "Student",
             "Attendance",
-            "Action"
+            "Update"
           ]}
           rows={students.map(
             (student) => [
               student.form,
-
               student.name,
-
-              student.attendance +
-                "%",
-
-              user.role ===
-              "Teacher" ? (
-                <button
-                  className="small danger"
-                  onClick={() =>
-                    markAbsent(
-                      student.id
+              `${student.attendance}%`,
+              user.role === "Teacher" ? (
+                <input
+                  className="markInput"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={
+                    student.attendance
+                  }
+                  onChange={(event) =>
+                    updateAttendance(
+                      student.id,
+                      event.target.value
                     )
                   }
-                >
-                  Mark Absent
-                </button>
+                />
               ) : (
-                "View"
+                <span className="goodText">
+                  Recorded
+                </span>
               )
             ]
           )}
@@ -2754,376 +2866,38 @@ function Attendance({
   );
 }
 
-/* =======================================================
-   MARKS
-======================================================= */
-
-function Marks({
-  user,
-  data,
-  setData
-}) {
-  const students =
-    data.students.filter(
-      (student) =>
-        student.schoolId ===
-        user.schoolId
-    );
-
-  const subjects =
-    user.role === "Teacher"
-      ? user.subjects || []
-      : [
-          "Mathematics",
-          "English",
-          "Chemistry",
-          "Agriculture",
-          "Physics"
-        ];
-
-  function updateMark(
-    studentId,
-    subject,
-    field,
-    value
-  ) {
-    if (
-      user.role === "Teacher" &&
-      !(user.subjects || []).includes(
-        subject
-      )
-    ) {
-      return;
-    }
-
-    const number =
-      value === ""
-        ? 0
-        : Number(value);
-
-    const updated =
-      data.students.map(
-        (student) => {
-          if (
-            student.id !==
-            studentId
-          ) {
-            return student;
-          }
-
-          const current =
-            student.subjects[
-              subject
-            ] || {
-              test: 0,
-              exam: 0,
-              comment: ""
-            };
-
-          return {
-            ...student,
-
-            subjects: {
-              ...student.subjects,
-
-              [subject]: {
-                ...current,
-                [field]: number
-              }
-            }
-          };
-        }
-      );
-
-    setData({
-      ...data,
-      students: updated
-    });
-  }
-
-  function updateComment(
-    studentId,
-    subject,
-    value
-  ) {
-    if (
-      user.role === "Teacher" &&
-      !(user.subjects || []).includes(
-        subject
-      )
-    ) {
-      return;
-    }
-
-    const updated =
-      data.students.map(
-        (student) => {
-          if (
-            student.id !==
-            studentId
-          ) {
-            return student;
-          }
-
-          const current =
-            student.subjects[
-              subject
-            ] || {
-              test: 0,
-              exam: 0,
-              comment: ""
-            };
-
-          return {
-            ...student,
-
-            subjects: {
-              ...student.subjects,
-
-              [subject]: {
-                ...current,
-                comment: value
-              }
-            }
-          };
-        }
-      );
-
-    setData({
-      ...data,
-      students: updated
-    });
-  }
-
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="ACADEMIC PERFORMANCE"
-        title="Marks"
-        text={
-          user.role === "Teacher"
-            ? "Teachers can only enter marks and comments for subjects they teach."
-            : "School leadership can view academic marks across the school."
-        }
-      />
-
-      {students.map(
-        (student) => (
-          <Panel
-            key={student.id}
-            title={
-              student.form +
-              " — " +
-              student.name
-            }
-          >
-            <div className="tableWrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>
-                      Subject
-                    </th>
-
-                    <th>
-                      Test
-                    </th>
-
-                    <th>
-                      Exam
-                    </th>
-
-                    <th>
-                      Aggregate
-                    </th>
-
-                    <th>
-                      Comment
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {subjects.map(
-                    (subject) => {
-                      const result =
-                        student
-                          .subjects[
-                          subject
-                        ] || {
-                          test: 0,
-                          exam: 0,
-                          comment: ""
-                        };
-
-                      const aggregateValue =
-                        Number(
-                          result.test ||
-                            0
-                        ) +
-                        Number(
-                          result.exam ||
-                            0
-                        );
-
-                      return (
-                        <tr
-                          key={
-                            subject
-                          }
-                        >
-                          <td>
-                            <strong>
-                              {
-                                subject
-                              }
-                            </strong>
-                          </td>
-
-                          <td>
-                            <input
-                              className="tableInput"
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={
-                                result.test
-                              }
-                              disabled={
-                                user.role ===
-                                  "Teacher" &&
-                                !user.subjects.includes(
-                                  subject
-                                )
-                              }
-                              onChange={(
-                                e
-                              ) =>
-                                updateMark(
-                                  student.id,
-                                  subject,
-                                  "test",
-                                  e.target
-                                    .value
-                                )
-                              }
-                            />
-                          </td>
-
-                          <td>
-                            <input
-                              className="tableInput"
-                              type="number"
-                              min="0"
-                              max="100"
-                              value={
-                                result.exam
-                              }
-                              disabled={
-                                user.role ===
-                                  "Teacher" &&
-                                !user.subjects.includes(
-                                  subject
-                                )
-                              }
-                              onChange={(
-                                e
-                              ) =>
-                                updateMark(
-                                  student.id,
-                                  subject,
-                                  "exam",
-                                  e.target
-                                    .value
-                                )
-                              }
-                            />
-                          </td>
-
-                          <td>
-                            <strong>
-                              {
-                                aggregateValue
-                              }
-                            </strong>
-                          </td>
-
-                          <td>
-                            <input
-                              className="tableInput commentInput"
-                              value={
-                                result.comment
-                              }
-                              disabled={
-                                user.role ===
-                                  "Teacher" &&
-                                !user.subjects.includes(
-                                  subject
-                                )
-                              }
-                              onChange={(
-                                e
-                              ) =>
-                                updateComment(
-                                  student.id,
-                                  subject,
-                                  e.target
-                                    .value
-                                )
-                              }
-                            />
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Panel>
-        )
-      )}
-    </>
-  );
-}
-
-/* =======================================================
+/* =========================================================
    FINANCE
-======================================================= */
+   ========================================================= */
 
 function Finance({
   user,
   data,
   setData
 }) {
-  const students =
+  const schoolStudents =
     data.students.filter(
       (student) =>
         student.schoolId ===
         user.schoolId
     );
 
-  function approveReceipt(paymentId) {
-    const updated =
-      data.payments.map(
-        (payment) => {
-          if (
-            payment.id !==
-            paymentId
-          ) {
-            return payment;
-          }
-
-          return {
-            ...payment,
-            status: "APPROVED"
-          };
-        }
-      );
+  function approvePayment(paymentId) {
+    if (user.role !== "Accountant") {
+      return;
+    }
 
     setData({
       ...data,
-      payments: updated
+      payments: data.payments.map(
+        (payment) =>
+          payment.id === paymentId
+            ? {
+                ...payment,
+                status: "APPROVED"
+              }
+            : payment
+      )
     });
   }
 
@@ -3131,8 +2905,8 @@ function Finance({
     <>
       <HeaderBlock
         eyebrow="FINANCE"
-        title="School finance"
-        text="Accountants manage fees, payments, balances and receipt verification."
+        title="School Fees"
+        text="Accountants manage payments, balances and receipt verification. Academic performance is not shown here."
       />
 
       <Panel title="Student fee table">
@@ -3140,13 +2914,24 @@ function Finance({
           headers={[
             "Form",
             "Student",
-            "Total Fees",
+            "Fees",
             "Paid",
             "Balance",
             "Receipt"
           ]}
-          rows={students.map(
+          rows={schoolStudents.map(
             (student) => {
+              const school =
+                data.schools.find(
+                  (item) =>
+                    item.id ===
+                    user.schoolId
+                );
+
+              const fee = Number(
+                school?.fees || 0
+              );
+
               const payments =
                 data.payments.filter(
                   (payment) =>
@@ -3163,40 +2948,30 @@ function Finance({
                   )
                   .reduce(
                     (
-                      sum,
+                      total,
                       payment
                     ) =>
-                      sum +
+                      total +
                       Number(
-                        payment.amount
+                        payment.amount ||
+                          0
                       ),
                     0
                   );
 
-              const school =
-                data.schools.find(
-                  (item) =>
-                    item.id ===
-                    user.schoolId
-                );
-
-              const total =
-                Number(
-                  school?.fees || 0
+              const balance =
+                Math.max(
+                  0,
+                  fee - paid
                 );
 
               return [
                 student.form,
                 student.name,
-                "E" +
-                  total.toLocaleString(),
-                "E" +
-                  paid.toLocaleString(),
-                "E" +
-                  Math.max(
-                    0,
-                    total - paid
-                  ).toLocaleString(),
+                `E${fee.toLocaleString()}`,
+                `E${paid.toLocaleString()}`,
+                `E${balance.toLocaleString()}`,
+
                 payments.some(
                   (payment) =>
                     payment.status ===
@@ -3213,7 +2988,7 @@ function Finance({
                         );
 
                       if (pending) {
-                        approveReceipt(
+                        approvePayment(
                           pending.id
                         );
                       }
@@ -3222,7 +2997,9 @@ function Finance({
                     Approve Receipt
                   </button>
                 ) : (
-                  "Verified"
+                  <span className="goodText">
+                    Verified
+                  </span>
                 )
               ];
             }
@@ -3233,505 +3010,11 @@ function Finance({
   );
 }
 
-/* =======================================================
-   SPACES
-======================================================= */
-
-function Spaces({
-  user,
-  data,
-  setData
-}) {
-  const school =
-    data.schools.find(
-      (item) =>
-        item.id === user.schoolId
-    );
-
-  function updateSpace(
-    grade,
-    value
-  ) {
-    const number =
-      Number(value) < 0
-        ? 0
-        : Number(value);
-
-    const updated =
-      data.schools.map(
-        (item) => {
-          if (
-            item.id !==
-            user.schoolId
-          ) {
-            return item;
-          }
-
-          return {
-            ...item,
-
-            spaces: {
-              ...item.spaces,
-              [grade]: number
-            }
-          };
-        }
-      );
-
-    setData({
-      ...data,
-      schools: updated
-    });
-  }
-
-  if (!school) {
-    return (
-      <Empty text="School not found." />
-    );
-  }
-
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="AVAILABLE SPACES"
-        title="Manage spaces"
-        text="School administrators can update available spaces."
-      />
-
-      <Panel title="Available spaces">
-        <div className="spaceManagement">
-          {Object.entries(
-            school.spaces
-          ).map(
-            ([grade, spaces]) => (
-              <div
-                className="spaceManageRow"
-                key={grade}
-              >
-                <strong>
-                  {grade}
-                </strong>
-
-                <input
-                  type="number"
-                  min="0"
-                  value={spaces}
-                  onChange={(e) =>
-                    updateSpace(
-                      grade,
-                      e.target.value
-                    )
-                  }
-                />
-
-                <span>
-                  {spaces === 0
-                    ? "FULL"
-                    : "spaces"}
-                </span>
-              </div>
-            )
-          )}
-        </div>
-
-        <div className="totalBox">
-          Total available:
-          <strong>
-            {" "}
-            {totalSpaces(
-              school.spaces
-            )}
-          </strong>
-        </div>
-      </Panel>
-    </>
-  );
-}
-
-/* =======================================================
-   RESOURCES
-======================================================= */
-
-function Resources({
-  user,
-  data,
-  setData
-}) {
-  const [resources, setResources] =
-    useState([
-      {
-        id: "R1",
-        name: "Form 1 Classroom",
-        desks: 24,
-        chairs: 30
-      },
-      {
-        id: "R2",
-        name: "Computer Laboratory",
-        desks: 20,
-        chairs: 25
-      }
-    ]);
-
-  function updateResource(
-    id,
-    field,
-    value
-  ) {
-    setResources(
-      resources.map(
-        (resource) => {
-          if (
-            resource.id !== id
-          ) {
-            return resource;
-          }
-
-          return {
-            ...resource,
-            [field]: Number(
-              value
-            )
-          };
-        }
-      )
-    );
-
-    setData({
-      ...data
-    });
-  }
-
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="RESOURCES"
-        title="School resources"
-        text="Manage demo physical school resources."
-      />
-
-      <Panel title="Resources">
-        <Table
-          headers={[
-            "Resource",
-            "Desks",
-            "Chairs"
-          ]}
-          rows={resources.map(
-            (resource) => [
-              resource.name,
-
-              <input
-                className="tableInput"
-                type="number"
-                value={
-                  resource.desks
-                }
-                onChange={(e) =>
-                  updateResource(
-                    resource.id,
-                    "desks",
-                    e.target.value
-                  )
-                }
-              />,
-
-              <input
-                className="tableInput"
-                type="number"
-                value={
-                  resource.chairs
-                }
-                onChange={(e) =>
-                  updateResource(
-                    resource.id,
-                    "chairs",
-                    e.target.value
-                  )
-                }
-              />
-            ]
-          )}
-        />
-      </Panel>
-    </>
-  );
-}
-
-/* =======================================================
-   NOTIFICATIONS
-======================================================= */
-
-function Notifications({
-  user,
-  data,
-  setData
-}) {
-  const [title, setTitle] =
-    useState("");
-
-  const [body, setBody] =
-    useState("");
-
-  function send() {
-    if (!title || !body) {
-      return;
-    }
-
-    const notification = {
-      id:
-        "NOT-" +
-        Date.now(),
-
-      title,
-      body,
-
-      audience:
-        user.schoolId || "all"
-    };
-
-    setData({
-      ...data,
-
-      notifications: [
-        ...data.notifications,
-        notification
-      ]
-    });
-
-    setTitle("");
-    setBody("");
-  }
-
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="COMMUNICATIONS"
-        title="Notifications"
-        text="Secretaries can prepare school communications and future SMS messages."
-      />
-
-      {user.role ===
-        "Secretary" && (
-        <Panel title="Create notification">
-          <label>
-            Title
-            <input
-              value={title}
-              onChange={(e) =>
-                setTitle(
-                  e.target.value
-                )
-              }
-            />
-          </label>
-
-          <label>
-            Message
-            <textarea
-              value={body}
-              onChange={(e) =>
-                setBody(
-                  e.target.value
-                )
-              }
-            />
-          </label>
-
-          <button
-            className="primary"
-            onClick={send}
-          >
-            Send Demo Notification
-          </button>
-        </Panel>
-      )}
-
-      <Panel title="Notifications">
-        {data.notifications.map(
-          (notification) => (
-            <div
-              className="notification"
-              key={notification.id}
-            >
-              <MessageSquare
-                size={18}
-              />
-
-              <div>
-                <strong>
-                  {
-                    notification.title
-                  }
-                </strong>
-
-                <p>
-                  {
-                    notification.body
-                  }
-                </p>
-              </div>
-            </div>
-          )
-        )}
-      </Panel>
-    </>
-  );
-}
-
-/* =======================================================
-   CALENDAR
-======================================================= */
-
-function CalendarPage({
-  user,
-  data,
-  setData
-}) {
-  const [title, setTitle] =
-    useState("");
-
-  const [date, setDate] =
-    useState("");
-
-  const [time, setTime] =
-    useState("");
-
-  function addEvent() {
-    if (
-      !title ||
-      !date ||
-      !time
-    ) {
-      return;
-    }
-
-    setData({
-      ...data,
-
-      calendar: [
-        ...data.calendar,
-
-        {
-          id:
-            "CAL-" +
-            Date.now(),
-
-          title,
-          date,
-          time,
-
-          details:
-            "EduLink demo event"
-        }
-      ]
-    });
-
-    setTitle("");
-    setDate("");
-    setTime("");
-  }
-
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="SCHOOL CALENDAR"
-        title="School calendar"
-        text="Staff can view important school events."
-      />
-
-      {(user.role ===
-        "Principal" ||
-        user.role ===
-          "Deputy Principal" ||
-        user.role ===
-          "Secretary") && (
-        <Panel title="Add event">
-          <div className="formGrid">
-            <label>
-              Event
-              <input
-                value={title}
-                onChange={(e) =>
-                  setTitle(
-                    e.target.value
-                  )
-                }
-              />
-            </label>
-
-            <label>
-              Date
-              <input
-                type="date"
-                value={date}
-                onChange={(e) =>
-                  setDate(
-                    e.target.value
-                  )
-                }
-              />
-            </label>
-
-            <label>
-              Time
-              <input
-                type="time"
-                value={time}
-                onChange={(e) =>
-                  setTime(
-                    e.target.value
-                  )
-                }
-              />
-            </label>
-          </div>
-
-          <button
-            className="primary"
-            onClick={addEvent}
-          >
-            Add Event
-          </button>
-        </Panel>
-      )}
-
-      <Panel title="Upcoming events">
-        {data.calendar.map(
-          (event) => (
-            <div
-              className="calendarEvent"
-              key={event.id}
-            >
-              <CalendarDays />
-
-              <div>
-                <strong>
-                  {event.title}
-                </strong>
-
-                <p>
-                  {event.date} •{" "}
-                  {event.time}
-                </p>
-
-                <small>
-                  {event.details}
-                </small>
-              </div>
-            </div>
-          )
-        )}
-      </Panel>
-    </>
-  );
-}
-
-/* =======================================================
+/* =========================================================
    PARENT CHILDREN
-======================================================= */
+   ========================================================= */
 
-function ParentChildren({
+function MyChildren({
   user,
   data
 }) {
@@ -3746,87 +3029,59 @@ function ParentChildren({
     <>
       <HeaderBlock
         eyebrow="MY CHILDREN"
-        title="My children"
-        text="Only children linked to your parent account are shown."
+        title="My Children"
+        text="Only your own children's information is displayed."
       />
 
-      {children.map(
-        (child) => (
-          <Panel
-            key={child.id}
-            title={
-              child.name +
-              " • " +
-              child.form
-            }
-          >
-            <div className="statGrid">
-              <Stat
-                title="Attendance"
-                value={
-                  child.attendance +
-                  "%"
-                }
-                icon={
-                  <CalendarCheck />
-                }
-              />
+      <div className="cardGrid">
+        {children.map(
+          (child) => (
+            <div
+              className="panel"
+              key={child.id}
+            >
+              <div className="studentAvatar">
+                <Users />
+              </div>
 
-              <Stat
-                title="Average"
-                value={
-                  studentAverage(
+              <h3>{child.name}</h3>
+
+              <p>
+                {child.form}
+              </p>
+
+              <div className="childStats">
+                <strong>
+                  {child.attendance}%
+                </strong>
+
+                <span>
+                  Attendance
+                </span>
+              </div>
+
+              <div className="childStats">
+                <strong>
+                  {averageStudent(
                     child
-                  ) + "%"
-                }
-                icon={
-                  <BookOpen />
-                }
-              />
+                  )}%
+                </strong>
 
-              <Stat
-                title="Aggregate"
-                value={aggregate(
-                  child
-                )}
-                icon={
-                  <GraduationCap />
-                }
-              />
+                <span>
+                  Average performance
+                </span>
+              </div>
             </div>
-
-            <Table
-              headers={[
-                "Subject",
-                "Test",
-                "Exam",
-                "Comment"
-              ]}
-              rows={Object.entries(
-                child.subjects
-              ).map(
-                ([
-                  subject,
-                  result
-                ]) => [
-                  subject,
-                  result.test,
-                  result.exam,
-                  result.comment ||
-                    "No comment"
-                ]
-              )}
-            />
-          </Panel>
-        )
-      )}
+          )
+        )}
+      </div>
     </>
   );
 }
 
-/* =======================================================
+/* =========================================================
    PARENT APPLICATIONS
-======================================================= */
+   ========================================================= */
 
 function ParentApplications({
   user,
@@ -3844,16 +3099,7 @@ function ParentApplications({
   const [form, setForm] =
     useState("Form 1");
 
-  const [dob, setDob] =
-    useState("");
-
-  const [gender, setGender] =
-    useState("Female");
-
-  const [previousSchool, setPreviousSchool] =
-    useState("");
-
-  const [files, setFiles] =
+  const [documents, setDocuments] =
     useState([]);
 
   const applications =
@@ -3863,16 +3109,26 @@ function ParentApplications({
         user.email
     );
 
-  function submitApplication(
-    event
-  ) {
+  function uploadDocuments(event) {
+    const files =
+      Array.from(
+        event.target.files || []
+      );
+
+    setDocuments(files);
+  }
+
+  function submitApplication(event) {
     event.preventDefault();
 
     if (
       !schoolId ||
-      !childName ||
+      !childName.trim() ||
       !form
     ) {
+      alert(
+        "Please complete the application."
+      );
       return;
     }
 
@@ -3886,85 +3142,65 @@ function ParentApplications({
       return;
     }
 
-    if (
-      school.admission !==
-      "OPEN"
-    ) {
-      alert(
-        "Admissions are currently closed."
-      );
-      return;
-    }
-
-    const spaces = Number(
-      school.spaces[form] || 0
-    );
-
-    if (spaces <= 0) {
-      alert(
-        form +
-          " is currently full."
-      );
-      return;
-    }
-
     const application = {
-      id:
-        "APP-" +
-        Date.now(),
-
-      schoolId,
-
-      parentName: user.name,
-
+      id: `APP-${Date.now()}`,
       parentEmail: user.email,
-
-      childName,
-
-      dob,
-
-      gender,
-
-      previousSchool,
-
+      parentName: user.name,
+      schoolId,
+      schoolName: school.name,
+      childName:
+        childName.trim(),
+      studentId: `STU-${Date.now()}`,
       form,
-
-      documents: files,
-
+      documents: documents.map(
+        (file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size
+        })
+      ),
       status: "PENDING",
-
-      createdAt:
+      submittedAt:
         new Date().toISOString()
     };
 
     setData({
       ...data,
-
       applications: [
         ...data.applications,
         application
+      ],
+      notifications: [
+        ...data.notifications,
+        {
+          id: `N-${Date.now()}`,
+          title:
+            "New school application",
+          body: `${user.name} submitted an application to ${school.name}.`,
+          audience:
+            "school",
+          schoolId
+        }
       ]
     });
 
     setChildName("");
-    setDob("");
-    setPreviousSchool("");
-    setFiles([]);
+    setDocuments([]);
 
     alert(
-      "Application submitted successfully."
+      "Application submitted successfully. The school can now see it in Admissions."
     );
   }
 
   return (
     <>
       <HeaderBlock
-        eyebrow="MY APPLICATIONS"
-        title="School applications"
-        text="Parents can apply to desired schools and upload required documents."
+        eyebrow="APPLICATIONS"
+        title="My Applications"
+        text="Apply to a desired school and upload the required documents."
       />
 
-      <Panel title="New application">
+      <Panel title="Create school application">
         <form
           onSubmit={
             submitApplication
@@ -3972,12 +3208,12 @@ function ParentApplications({
         >
           <div className="formGrid">
             <label>
-              School
+              Desired school
               <select
                 value={schoolId}
-                onChange={(e) =>
+                onChange={(event) =>
                   setSchoolId(
-                    e.target.value
+                    event.target.value
                   )
                 }
               >
@@ -4005,177 +3241,104 @@ function ParentApplications({
             </label>
 
             <label>
-              Child full name
+              Child's name
               <input
                 value={childName}
-                onChange={(e) =>
+                onChange={(event) =>
                   setChildName(
-                    e.target.value
+                    event.target.value
                   )
                 }
+                placeholder="Enter child's full name"
               />
-            </label>
-
-            <label>
-              Date of birth
-              <input
-                type="date"
-                value={dob}
-                onChange={(e) =>
-                  setDob(
-                    e.target.value
-                  )
-                }
-              />
-            </label>
-
-            <label>
-              Gender
-              <select
-                value={gender}
-                onChange={(e) =>
-                  setGender(
-                    e.target.value
-                  )
-                }
-              >
-                <option>
-                  Female
-                </option>
-
-                <option>
-                  Male
-                </option>
-              </select>
             </label>
 
             <label>
               Grade/Form
-              <select
+              <input
                 value={form}
-                onChange={(e) =>
+                onChange={(event) =>
                   setForm(
-                    e.target.value
+                    event.target.value
                   )
                 }
-              >
-                <option>
-                  Form 1
-                </option>
-
-                <option>
-                  Form 2
-                </option>
-
-                <option>
-                  Form 3
-                </option>
-
-                <option>
-                  Form 4
-                </option>
-
-                <option>
-                  Form 5
-                </option>
-              </select>
+              />
             </label>
 
             <label>
-              Previous school
+              Required documents
               <input
-                value={
-                  previousSchool
-                }
-                onChange={(e) =>
-                  setPreviousSchool(
-                    e.target.value
-                  )
+                type="file"
+                multiple
+                onChange={
+                  uploadDocuments
                 }
               />
             </label>
           </div>
 
-          <label>
-            Required documents
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={(e) => {
-                const selected =
-                  Array.from(
-                    e.target.files || []
-                  ).map(
-                    (file) => ({
-                      name: file.name,
-                      type: file.type,
-                      size: file.size
-                    })
-                  );
+          {documents.length > 0 && (
+            <div className="demoBox">
+              <b>
+                Documents selected:
+              </b>
 
-                setFiles(selected);
-              }}
-            />
-          </label>
-
-          <div className="uploadBox">
-            <Upload size={18} />
-
-            {files.length === 0
-              ? "Upload transcript/report and other required documents."
-              : files
-                  .map(
-                    (file) =>
-                      file.name
+              <ul>
+                {documents.map(
+                  (document) => (
+                    <li
+                      key={
+                        document.name
+                      }
+                    >
+                      {document.name}
+                    </li>
                   )
-                  .join(", ")}
-          </div>
+                )}
+              </ul>
+            </div>
+          )}
 
           <button
             className="primary"
             type="submit"
           >
+            <Upload size={16} />
             Submit Application
           </button>
         </form>
       </Panel>
 
-      <Panel title="Application history">
+      <Panel title="Submitted applications">
         {applications.length === 0 ? (
-          <Empty text="You have not submitted an application." />
+          <Empty text="You have not submitted an application yet." />
         ) : (
           <Table
             headers={[
               "School",
               "Child",
               "Form",
+              "Documents",
               "Status"
             ]}
             rows={applications.map(
-              (application) => {
-                const school =
-                  data.schools.find(
-                    (item) =>
-                      item.id ===
-                      application.schoolId
-                  );
-
-                return [
-                  school?.name ||
-                    "Unknown",
-
-                  application.childName,
-
-                  application.form,
-
-                  <Status
-                    status={
-                      application.status
-                    }
-                  />
-                ];
-              }
+              (application) => [
+                application.schoolName,
+                application.childName,
+                application.form,
+                `${
+                  application.documents
+                    ?.length || 0
+                } uploaded`,
+                <Status
+                  key={
+                    application.id
+                  }
+                  status={
+                    application.status
+                  }
+                />
+              ]
             )}
           />
         )}
@@ -4184,9 +3347,9 @@ function ParentApplications({
   );
 }
 
-/* =======================================================
+/* =========================================================
    PARENT FEES
-======================================================= */
+   ========================================================= */
 
 function ParentFees({
   user,
@@ -4203,96 +3366,325 @@ function ParentFees({
     <>
       <HeaderBlock
         eyebrow="SCHOOL FEES"
-        title="My school fees"
-        text="Only fees belonging to your own children are shown."
+        title="My Children's Fees"
+        text="Only your own children's fee information is displayed."
       />
 
-      {children.map(
-        (child) => {
-          const school =
-            data.schools.find(
-              (item) =>
-                item.id ===
-                child.schoolId
-            );
+      <Panel title="Fee balances">
+        <Table
+          headers={[
+            "Child",
+            "Form",
+            "Paid",
+            "Outstanding"
+          ]}
+          rows={children.map(
+            (child) => {
+              const school =
+                data.schools.find(
+                  (item) =>
+                    item.id ===
+                    child.schoolId
+                );
 
-          const payments =
-            data.payments.filter(
-              (payment) =>
-                payment.studentId ===
-                child.id &&
-                payment.status ===
-                  "APPROVED"
-            );
+              const payments =
+                data.payments.filter(
+                  (payment) =>
+                    payment.studentId ===
+                    child.id &&
+                    payment.parentEmail ===
+                    user.email &&
+                    payment.status ===
+                    "APPROVED"
+                );
 
-          const paid =
-            payments.reduce(
-              (sum, payment) =>
-                sum +
-                Number(
-                  payment.amount
-                ),
-              0
-            );
+              const paid =
+                payments.reduce(
+                  (
+                    total,
+                    payment
+                  ) =>
+                    total +
+                    Number(
+                      payment.amount ||
+                        0
+                    ),
+                  0
+                );
 
-          const total =
-            Number(
-              school?.fees || 0
-            );
+              const balance =
+                Math.max(
+                  0,
+                  Number(
+                    school?.fees || 0
+                  ) - paid
+                );
 
-          return (
-            <Panel
-              key={child.id}
-              title={child.name}
-            >
-              <div className="statGrid">
-                <Stat
-                  title="Total Fees"
-                  value={
-                    "E" +
-                    total.toLocaleString()
-                  }
-                  icon={
-                    <Receipt />
-                  }
-                />
-
-                <Stat
-                  title="Paid"
-                  value={
-                    "E" +
-                    paid.toLocaleString()
-                  }
-                  icon={
-                    <CheckCircle />
-                  }
-                />
-
-                <Stat
-                  title="Balance"
-                  value={
-                    "E" +
-                    Math.max(
-                      0,
-                      total - paid
-                    ).toLocaleString()
-                  }
-                  icon={
-                    <AlertTriangle />
-                  }
-                />
-              </div>
-            </Panel>
-          );
-        }
-      )}
+              return [
+                child.name,
+                child.form,
+                `E${paid.toLocaleString()}`,
+                `E${balance.toLocaleString()}`
+              ];
+            }
+          )}
+        />
+      </Panel>
     </>
   );
 }
 
-/* =======================================================
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+
+function Notifications({
+  user,
+  data,
+  setData
+}) {
+  const notifications =
+    data.notifications.filter(
+      (notification) => {
+        if (
+          notification.audience ===
+          "all"
+        ) {
+          return true;
+        }
+
+        if (
+          notification.schoolId &&
+          notification.schoolId !==
+            user.schoolId
+        ) {
+          return false;
+        }
+
+        if (
+          notification.parentEmail &&
+          notification.parentEmail !==
+            user.email
+        ) {
+          return false;
+        }
+
+        return true;
+      }
+    );
+
+  function addNotification() {
+    if (
+      user.role !== "Secretary" &&
+      user.role !== "Principal" &&
+      user.role !==
+        "Deputy Principal"
+    ) {
+      return;
+    }
+
+    const title =
+      window.prompt(
+        "Notification title:"
+      );
+
+    if (!title) {
+      return;
+    }
+
+    const body =
+      window.prompt(
+        "Notification message:"
+      );
+
+    if (!body) {
+      return;
+    }
+
+    setData({
+      ...data,
+      notifications: [
+        ...data.notifications,
+        {
+          id: `N-${Date.now()}`,
+          title,
+          body,
+          audience: "school",
+          schoolId:
+            user.schoolId
+        }
+      ]
+    });
+  }
+
+  return (
+    <>
+      <HeaderBlock
+        eyebrow="NOTIFICATIONS"
+        title="Notifications"
+        text="School announcements, application updates, fee reminders and important messages."
+        action={
+          user.role === "Secretary" ||
+          user.role === "Principal" ||
+          user.role ===
+            "Deputy Principal" ? (
+            <button
+              className="primary"
+              onClick={
+                addNotification
+              }
+            >
+              <Plus size={16} />
+              New notification
+            </button>
+          ) : null
+        }
+      />
+
+      <div className="notificationList">
+        {notifications.map(
+          (notification) => (
+            <div
+              className="panel notice"
+              key={
+                notification.id
+              }
+            >
+              <MessageSquare />
+
+              <div>
+                <h3>
+                  {notification.title}
+                </h3>
+
+                <p>
+                  {notification.body}
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+    </>
+  );
+}
+
+/* =========================================================
+   CALENDAR
+   ========================================================= */
+
+function CalendarPage({
+  user,
+  data,
+  setData
+}) {
+  const events =
+    data.calendar.filter(
+      (event) => {
+        if (!event.schoolId) {
+          return true;
+        }
+
+        return (
+          event.schoolId ===
+          user.schoolId
+        );
+      }
+    );
+
+  function addEvent() {
+    if (
+      user.role !== "Secretary" &&
+      user.role !== "Principal" &&
+      user.role !==
+        "Deputy Principal"
+    ) {
+      return;
+    }
+
+    const title =
+      window.prompt(
+        "Event title:"
+      );
+
+    if (!title) {
+      return;
+    }
+
+    const date =
+      window.prompt(
+        "Event date (YYYY-MM-DD):"
+      );
+
+    if (!date) {
+      return;
+    }
+
+    setData({
+      ...data,
+      calendar: [
+        ...data.calendar,
+        {
+          id: `CAL-${Date.now()}`,
+          title,
+          date,
+          time: "All day",
+          details:
+            "School calendar event",
+          schoolId:
+            user.schoolId
+        }
+      ]
+    });
+  }
+
+  return (
+    <>
+      <HeaderBlock
+        eyebrow="SCHOOL CALENDAR"
+        title="School Calendar"
+        text="Important school dates, meetings, tests and deadlines."
+        action={
+          user.role === "Secretary" ||
+          user.role === "Principal" ||
+          user.role ===
+            "Deputy Principal" ? (
+            <button
+              className="primary"
+              onClick={addEvent}
+            >
+              <Plus size={16} />
+              Add Event
+            </button>
+          ) : null
+        }
+      />
+
+      <Panel title="Calendar events">
+        <Table
+          headers={[
+            "Date",
+            "Event",
+            "Time",
+            "Details"
+          ]}
+          rows={events.map(
+            (event) => [
+              event.date,
+              event.title,
+              event.time,
+              event.details
+            ]
+          )}
+        />
+      </Panel>
+    </>
+  );
+}
+
+/* =========================================================
    REPORTS
-======================================================= */
+   ========================================================= */
 
 function Reports({
   user,
@@ -4309,27 +3701,304 @@ function Reports({
     <>
       <HeaderBlock
         eyebrow="REPORTS"
-        title="School reports"
-        text="Demo academic and attendance reporting."
+        title="School Reports"
+        text="Management reports available to school leadership."
       />
 
-      <Panel title="Academic summary">
+      <div className="statGrid">
+        <Stat
+          icon={<Users />}
+          value={students.length}
+          label="Students"
+        />
+
+        <Stat
+          icon={<CalendarCheck />}
+          value={
+            students.length
+              ? Math.round(
+                  students.reduce(
+                    (
+                      total,
+                      student
+                    ) =>
+                      total +
+                      Number(
+                        student.attendance ||
+                          0
+                      ),
+                    0
+                  ) /
+                    students.length
+                )
+              : 0
+          }
+          label="Average attendance %"
+        />
+
+        <Stat
+          icon={<BookOpen />}
+          value={
+            students.length
+              ? Math.round(
+                  students.reduce(
+                    (
+                      total,
+                      student
+                    ) =>
+                      total +
+                      averageStudent(
+                        student
+                      ),
+                    0
+                  ) /
+                    students.length
+                )
+              : 0
+          }
+          label="Average performance %"
+        />
+      </div>
+    </>
+  );
+}
+
+/* =========================================================
+   ADMIN SCHOOL MANAGEMENT
+   ========================================================= */
+
+function AdminSchools({
+  data,
+  setData
+}) {
+  const pending =
+    data.pendingSchools;
+
+  function approveSchool(
+    schoolId
+  ) {
+    const pendingSchool =
+      data.pendingSchools.find(
+        (school) =>
+          school.id === schoolId
+      );
+
+    if (!pendingSchool) {
+      return;
+    }
+
+    const approvedSchool = {
+      ...pendingSchool,
+      status: "APPROVED"
+    };
+
+    const registration =
+      pendingSchool.registration ||
+      {};
+
+    const newStaff = [];
+
+    if (registration.principal) {
+      newStaff.push({
+        id: `STAFF-${Date.now()}-P`,
+        name:
+          registration.principal,
+        role: "Principal",
+        schoolId:
+          approvedSchool.id
+      });
+    }
+
+    if (registration.deputy) {
+      newStaff.push({
+        id: `STAFF-${Date.now()}-D`,
+        name:
+          registration.deputy,
+        role: "Deputy Principal",
+        schoolId:
+          approvedSchool.id
+      });
+    }
+
+    if (registration.accountant) {
+      newStaff.push({
+        id: `STAFF-${Date.now()}-A`,
+        name:
+          registration.accountant,
+        role: "Accountant",
+        schoolId:
+          approvedSchool.id
+      });
+    }
+
+    if (registration.secretary) {
+      newStaff.push({
+        id: `STAFF-${Date.now()}-S`,
+        name:
+          registration.secretary,
+        role: "Secretary",
+        schoolId:
+          approvedSchool.id
+      });
+    }
+
+    const teachers =
+      registration.teachers ||
+      [];
+
+    teachers.forEach(
+      (teacher, index) => {
+        newStaff.push({
+          id: `STAFF-${Date.now()}-T${index}`,
+          name: teacher,
+          role: "Teacher",
+          schoolId:
+            approvedSchool.id,
+          subjects: [],
+          grades: []
+        });
+      }
+    );
+
+    setData({
+      ...data,
+      schools: [
+        ...data.schools,
+        approvedSchool
+      ],
+      pendingSchools:
+        data.pendingSchools.filter(
+          (school) =>
+            school.id !== schoolId
+        ),
+      staff: [
+        ...data.staff,
+        ...newStaff
+      ]
+    });
+  }
+
+  function rejectSchool(
+    schoolId
+  ) {
+    setData({
+      ...data,
+      pendingSchools:
+        data.pendingSchools.filter(
+          (school) =>
+            school.id !== schoolId
+        )
+    });
+  }
+
+  return (
+    <>
+      <HeaderBlock
+        eyebrow="SYSTEM ADMIN"
+        title="School Management"
+        text="Verify school information before approving or rejecting registrations."
+      />
+
+      <div className="statGrid">
+        <Stat
+          icon={<Clock />}
+          value={pending.length}
+          label="Pending schools"
+        />
+
+        <Stat
+          icon={<School />}
+          value={data.schools.length}
+          label="Registered schools"
+        />
+
+        <Stat
+          icon={<CheckCircle />}
+          value={
+            data.schools.filter(
+              (school) =>
+                school.status ===
+                "APPROVED"
+            ).length
+          }
+          label="Approved schools"
+        />
+      </div>
+
+      <Panel title="Pending school registrations">
+        {pending.length === 0 ? (
+          <Empty text="There are no pending school registrations." />
+        ) : (
+          <Table
+            headers={[
+              "School",
+              "Centre",
+              "Location",
+              "Principal",
+              "Action"
+            ]}
+            rows={pending.map(
+              (school) => [
+                school.name,
+                school.centre,
+                school.location,
+                school.registration
+                  ?.principal ||
+                  "Not supplied",
+
+                <div
+                  className="rowActions"
+                  key={
+                    school.id
+                  }
+                >
+                  <button
+                    className="small good"
+                    onClick={() =>
+                      approveSchool(
+                        school.id
+                      )
+                    }
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    className="small danger"
+                    onClick={() =>
+                      rejectSchool(
+                        school.id
+                      )
+                    }
+                  >
+                    Reject
+                  </button>
+                </div>
+              ]
+            )}
+          />
+        )}
+      </Panel>
+
+      <Panel title="Registered schools">
         <Table
           headers={[
-            "Student",
-            "Form",
-            "Average",
-            "Attendance"
+            "School",
+            "Centre Number",
+            "Location",
+            "Status"
           ]}
-          rows={students.map(
-            (student) => [
-              student.name,
-              student.form,
-              studentAverage(
-                student
-              ) + "%",
-              student.attendance +
-                "%"
+          rows={data.schools.map(
+            (school) => [
+              school.name,
+              school.centre,
+              school.location,
+              <Status
+                key={school.id}
+                status={
+                  school.status
+                }
+              />
             ]
           )}
         />
@@ -4338,65 +4007,33 @@ function Reports({
   );
 }
 
-/* =======================================================
-   SETTINGS
-======================================================= */
-
-function SettingsPage({
-  user
-}) {
-  return (
-    <>
-      <HeaderBlock
-        eyebrow="SETTINGS"
-        title="Account settings"
-        text="Prototype account information."
-      />
-
-      <Panel title="Current account">
-        <div className="settingRow">
-          <span>Name</span>
-          <strong>
-            {user.name}
-          </strong>
-        </div>
-
-        <div className="settingRow">
-          <span>Role</span>
-          <strong>
-            {user.role}
-          </strong>
-        </div>
-
-        <div className="settingRow">
-          <span>Email</span>
-          <strong>
-            {user.email}
-          </strong>
-        </div>
-      </Panel>
-    </>
-  );
-}
-
-/* =======================================================
+/* =========================================================
    UI COMPONENTS
-======================================================= */
+   ========================================================= */
 
 function HeaderBlock({
   eyebrow,
   title,
-  text
+  text,
+  action
 }) {
   return (
     <div className="pageHeader">
-      <span className="eyebrow">
-        {eyebrow}
-      </span>
+      <div>
+        <span className="eyebrow">
+          {eyebrow}
+        </span>
 
-      <h1>{title}</h1>
+        <h1>{title}</h1>
 
-      <p>{text}</p>
+        <p>{text}</p>
+      </div>
+
+      {action && (
+        <div className="pageAction">
+          {action}
+        </div>
+      )}
     </div>
   );
 }
@@ -4407,23 +4044,16 @@ function Panel({
 }) {
   return (
     <section className="panel">
-      {title && (
-        <div className="panelHeader">
-          <h2>{title}</h2>
-        </div>
-      )}
-
-      <div className="panelBody">
-        {children}
-      </div>
+      {title && <h2>{title}</h2>}
+      {children}
     </section>
   );
 }
 
 function Stat({
-  title,
+  icon,
   value,
-  icon
+  label
 }) {
   return (
     <div className="statCard">
@@ -4431,10 +4061,9 @@ function Stat({
         {icon}
       </div>
 
-      <div>
-        <small>{title}</small>
-        <strong>{value}</strong>
-      </div>
+      <strong>{value}</strong>
+
+      <span>{label}</span>
     </div>
   );
 }
@@ -4485,17 +4114,23 @@ function Table({
 function Status({
   status
 }) {
-  const className =
-    status === "APPROVED"
-      ? "status approved"
-      : status === "DECLINED"
-      ? "status declined"
-      : status === "WAITLIST"
-      ? "status waitlist"
-      : "status pending";
+  const normalized =
+    String(status || "")
+      .toLowerCase();
 
   return (
-    <span className={className}>
+    <span
+      className={
+        "status " +
+        (normalized ===
+        "approved"
+          ? "open"
+          : normalized ===
+              "declined"
+            ? "danger"
+            : "warn")
+      }
+    >
       {status}
     </span>
   );
@@ -4506,13 +4141,13 @@ function Empty({
 }) {
   return (
     <div className="empty">
-      <FileText size={22} />
+      <ClipboardList />
       <p>{text}</p>
     </div>
   );
 }
 
-function FeatureCard({
+function Feature({
   icon,
   title,
   text
@@ -4530,21 +4165,40 @@ function FeatureCard({
   );
 }
 
-/* =======================================================
+function Modal({
+  title,
+  onClose,
+  children
+}) {
+  return (
+    <div className="modalBackdrop">
+      <div className="modal">
+        <div className="modalHeader">
+          <h2>{title}</h2>
+
+          <button
+            className="iconBtn"
+            onClick={onClose}
+          >
+            <X />
+          </button>
+        </div>
+
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    START APPLICATION
-======================================================= */
+   ========================================================= */
 
 const rootElement =
   document.getElementById("root");
 
-if (!rootElement) {
-  throw new Error(
-    "EduLink: root element was not found in index.html."
+if (rootElement) {
+  createRoot(rootElement).render(
+    <App />
   );
 }
-
-createRoot(rootElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
