@@ -1,84 +1,1365 @@
-import React,{useEffect,useMemo,useState} from 'react'
-import {createRoot} from 'react-dom/client'
-import {Search,ShieldCheck,ChevronRight,School,Users,BookOpen,CalendarDays,Bell,FileText,Wallet,CheckCircle2,XCircle,Clock3,LogIn,Menu,Upload,ArrowLeft,Plus,Trash2} from 'lucide-react'
-import './styles.css'
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  School,
+  Search,
+  ShieldCheck,
+  Users,
+  GraduationCap,
+  Wallet,
+  MessageSquare,
+  Menu,
+  X,
+  ChevronRight,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  LogOut,
+  LayoutDashboard,
+  BookOpen,
+  CalendarCheck,
+  Receipt,
+  Settings,
+  Boxes,
+  FileText,
+  UserPlus,
+  CalendarDays,
+  Upload,
+  ClipboardList,
+  XCircle,
+  Eye
+} from "lucide-react";
+import "./styles.css";
 
-const KEY='edulink-demo-v3'
-const uid=()=>Math.random().toString(36).slice(2,10)
-const seed={
- schools:[{id:'s1',name:'Hermann Gmeiner High School',centre:'3333',location:'Manzini',type:'High School',phone:'+268 2400 0000',email:'office@demo.school',principal:'Thandi Dlamini',status:'Approved',admissions:'OPEN',spaces:{'Form 1':20,'Form 2':10,'Form 3':15,'Form 4':12,'Form 5':13}}],
- pendingSchools:[],
- staff:[
-  {id:'st1',schoolId:'s1',name:'Thandi Dlamini',role:'Principal',email:'principal@edulink.demo'},
-  {id:'st2',schoolId:'s1',name:'Sibusiso Mamba',role:'Deputy Principal',email:'deputy@edulink.demo'},
-  {id:'st3',schoolId:'s1',name:'Nomsa Nkosi',role:'Teacher',email:'teacher@edulink.demo',subjects:['Mathematics','English'],grades:['Form 1']},
-  {id:'st4',schoolId:'s1',name:'Bongani Dube',role:'Accountant',email:'accountant@edulink.demo'},
-  {id:'st5',schoolId:'s1',name:'Lindiwe Ndlovu',role:'Secretary',email:'secretary@edulink.demo'}
- ],
- students:[
-  {id:'c1',schoolId:'s1',name:'Lwazi Mthethwa',grade:'Form 1',attendance:80,fees:3000,paid:1500,marks:{Mathematics:72,English:78,Science:69,Agriculture:65,Physics:70},comments:{Mathematics:'Good progress.'}},
-  {id:'c2',schoolId:'s1',name:'Leo Dlamini',grade:'Form 1',attendance:94,fees:3000,paid:3000,marks:{Mathematics:80,English:90,Science:78,Agriculture:60,Physics:100},comments:{}},
-  {id:'c3',schoolId:'s1',name:'Lisa Mamba',grade:'Form 1',attendance:88,fees:3000,paid:2000,marks:{Mathematics:62,English:66,Science:72,Agriculture:63,Physics:65},comments:{}},
-  {id:'c4',schoolId:'s1',name:'Max Ndlovu',grade:'Form 2',attendance:91,fees:3000,paid:2500,marks:{Mathematics:70,English:74,Science:68,Agriculture:71,Physics:73},comments:{}}
- ],
- parents:[{id:'p1',name:'Demo Parent',email:'parent@edulink.demo',phone:'+268 7900 0000',children:['c1','c2']}],
- applications:[],
- receipts:[],
- calendar:[{id:'e1',title:'Parents meeting',date:'2026-09-05',time:'14:00',schoolId:'s1'}],
- announcements:[{id:'a1',title:'Welcome to EduLink demo',body:'This is fictional prototype information.',schoolId:'s1'}]
-}
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||seed}catch{return seed}}
-function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
-const roles=['Parent','Teacher','Principal','Deputy Principal','Accountant','Secretary','System Admin']
-const creds={Parent:'parent@edulink.demo',Teacher:'teacher@edulink.demo',Principal:'principal@edulink.demo','Deputy Principal':'deputy@edulink.demo',Accountant:'accountant@edulink.demo',Secretary:'secretary@edulink.demo','System Admin':'admin@edulink.demo'}
-function App(){
- const [data,setData]=useState(load); const [page,setPage]=useState('home'); const [role,setRole]=useState(null); const [menu,setMenu]=useState(false); const [query,setQuery]=useState('');
- useEffect(()=>save(data),[data])
- const go=p=>{setPage(p);setMenu(false);window.scrollTo(0,0)}
- const login=r=>{setRole(r);go('dashboard')}
- const logout=()=>{setRole(null);go('home')}
- const school=data.schools[0]
- const update=fn=>setData(d=>{const n=JSON.parse(JSON.stringify(d));fn(n);return n})
- const totalSpaces=school?Object.values(school.spaces).reduce((a,b)=>a+b,0):0
- const filtered=data.schools.filter(s=>`${s.name} ${s.centre} ${s.location}`.toLowerCase().includes(query.toLowerCase()))
- return <div className="app">
-  <header className="topbar"><button className="iconbtn mobile" onClick={()=>setMenu(!menu)}><Menu/></button><button className="brand" onClick={()=>go('home')}><span className="logo"><ShieldCheck/></span><span><b>EduLink</b><small>ESWATINI</small></span></button><nav className={menu?'open':''}><button onClick={()=>go('home')}>Home</button><button onClick={()=>go('directory')}>Find a School</button><button onClick={()=>go('about')}>About</button><button className="loginlink" onClick={()=>go('login')}><LogIn/> Login</button><button className="outline" onClick={()=>go('register')}>Register Your School</button></nav></header>
-  <main>
-   {page==='home'&&<Home go={go}/>} 
-   {page==='directory'&&<Directory schools={filtered} query={query} setQuery={setQuery} go={go}/>} 
-   {page==='school'&&<SchoolProfile school={school} data={data} totalSpaces={totalSpaces} go={go}/>} 
-   {page==='register'&&<SchoolRegister data={data} update={update} go={go}/>} 
-   {page==='login'&&<Login login={login}/>} 
-   {page==='about'&&<About/>}
-   {page==='dashboard'&&role&&<Dashboard role={role} data={data} update={update} go={go} logout={logout}/>} 
-  </main>
-  <footer>© 2026 EduLink Eswatini · Prototype · Demo data only</footer>
- </div>
-}
-function Home({go}){return <section className="hero wrap"><div className="eyebrow">EDUCATION · CONNECTION · OPPORTUNITY</div><h1>One platform for <span>schools, parents and students.</span></h1><p>Find schools, check available spaces, apply online, monitor your child's progress and stay connected with school communications.</p><div className="actions"><button className="primary" onClick={()=>go('directory')}>Find a School <ChevronRight/></button><button className="secondary" onClick={()=>go('register')}>Register Your School</button><button className="textbtn" onClick={()=>go('login')}><LogIn/> Login</button></div><div className="homegrid"><Feature icon={<School/>} title="Find schools" text="Search by school name, Centre Number or location."/><Feature icon={<FileText/>} title="Apply online" text="Parents can submit applications and required documents."/><Feature icon={<Users/>} title="Stay connected" text="Role-based access for parents and school staff."/></div></section>}
-function Feature({icon,title,text}){return <div className="feature"><span>{icon}</span><div><h3>{title}</h3><p>{text}</p></div></div>}
-function Directory({schools,query,setQuery,go}){return <section className="wrap page"><div className="pagehead"><div><div className="eyebrow">SCHOOL DIRECTORY</div><h2>Find a school</h2><p>Search participating schools using demo information.</p></div></div><div className="search"><Search/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="School name, Centre Number or location"/></div><div className="cards">{schools.map(s=><article className="schoolcard" key={s.id}><div className="schoolicon"><School/></div><div className="grow"><span className="pill green">{s.admissions}</span><h3>{s.name}</h3><p>Centre Number: <b>{s.centre}</b> · {s.location} · {s.type}</p><p className="muted">Available spaces: <b>{Object.values(s.spaces).reduce((a,b)=>a+b,0)}</b></p></div><button className="round" onClick={()=>go('school')}>›</button></article>)}</div></section>}
-function SchoolProfile({school,totalSpaces,go}){return <section className="wrap page"><button className="back" onClick={()=>go('directory')}><ArrowLeft/> Back</button><div className="profilehead"><span className="schoolicon big"><School/></span><div><div className="eyebrow">SCHOOL PROFILE</div><h2>{school.name}</h2><p>Centre Number {school.centre} · {school.location} · {school.type}</p></div></div><div className="statgrid"><div><small>Admission</small><b>{school.admissions}</b></div><div><small>Total spaces</small><b>{totalSpaces}</b></div><div><small>Principal</small><b>{school.principal}</b></div></div><h3>Available spaces</h3><div className="spacegrid">{Object.entries(school.spaces).map(([g,n])=><div key={g}><span>{g}</span><b>{n===0?'FULL':n}</b></div>)}</div><button className="primary" onClick={()=>go('login')}>Login to apply</button></section>}
-function SchoolRegister({update,go}){const [f,setF]=useState({name:'',centre:'',location:'',type:'High School',phone:'',email:'',principal:'',staff:''});const submit=e=>{e.preventDefault();update(d=>d.pendingSchools.push({...f,id:uid(),status:'Pending',submittedAt:new Date().toISOString()}));alert('School registration submitted. It is now pending System Admin verification.');go('home')};return <section className="wrap page narrow"><div className="eyebrow">SCHOOL REGISTRATION</div><h2>Register your school</h2><p>Registrations go to the System Admin for verification before appearing in the public directory.</p><form onSubmit={submit} className="form"><Field label="School name" value={f.name} onChange={v=>setF({...f,name:v})} required/><Field label="Centre Number" value={f.centre} onChange={v=>setF({...f,centre:v})} required/><div className="twocol"><Field label="Location" value={f.location} onChange={v=>setF({...f,location:v})} required/><label>School type<select value={f.type} onChange={e=>setF({...f,type:e.target.value})}><option>Primary School</option><option>High School</option><option>Combined School</option></select></label></div><div className="twocol"><Field label="Phone" value={f.phone} onChange={v=>setF({...f,phone:v})}/><Field label="Email" type="email" value={f.email} onChange={v=>setF({...f,email:v})}/></div><Field label="Principal name" value={f.principal} onChange={v=>setF({...f,principal:v})} required/><label>School staff and roles<textarea value={f.staff} onChange={e=>setF({...f,staff:e.target.value})} placeholder="Name — Teacher — Mathematics — Form 1\nName — Accountant\nName — Deputy Principal" required/></label><button className="primary" type="submit">Submit for Admin Approval <ChevronRight/></button></form></section>}
-function Field({label,value,onChange,type='text',required}){return <label>{label}<input type={type} value={value} onChange={e=>onChange(e.target.value)} required={required}/></label>}
-function Login({login}){return <section className="wrap page narrow"><div className="eyebrow">SECURE ACCESS</div><h2>Login</h2><p>Select your role for the prototype demonstration.</p><div className="rolegrid">{roles.map(r=><button key={r} className="rolecard" onClick={()=>login(r)}><span>{roleIcon(r)}</span><b>{r}</b><small>{creds[r]}</small></button>)}</div><div className="demo">Prototype login: selecting a role enters the demo dashboard. Real authentication will be added with the backend.</div></section>}
-function roleIcon(r){if(r==='Parent')return <Users/>;if(r==='Teacher')return <BookOpen/>;if(r.includes('Principal'))return <School/>;if(r==='Accountant')return <Wallet/>;if(r==='Secretary')return <Bell/>;return <ShieldCheck/>}
-function About(){return <section className="wrap page narrow"><div className="eyebrow">ABOUT EDULINK</div><h2>Built for Eswatini education</h2><p>EduLink Eswatini is a prototype for connecting schools, parents, teachers and administrators in one secure platform. It uses original branding and fictional data only.</p><div className="notice"><ShieldCheck/><div><b>Prototype privacy</b><p>Real student records, payments, document storage, SMS and authentication are not connected.</p></div></div></section>}
-function Dashboard({role,data,update,go,logout}){return <section className="wrap dashboard"><div className="dashhead"><div><span className="pill blue">{role}</span><h2>{role} Dashboard</h2><p>Hermann Gmeiner High School · Centre 3333</p></div><button className="secondary" onClick={logout}>Logout</button></div>{role==='Parent'&&<Parent data={data} update={update}/>} {role==='Teacher'&&<Teacher data={data} update={update}/>} {(role==='Principal'||role==='Deputy Principal')&&<Leadership role={role} data={data} update={update}/>} {role==='Accountant'&&<Accountant data={data} update={update}/>} {role==='Secretary'&&<Secretary data={data} update={update}/>} {role==='System Admin'&&<Admin data={data} update={update}/>}</section>}
-function Parent({data,update}){const p=data.parents[0];const children=data.students.filter(s=>p.children.includes(s.id));const [tab,setTab]=useState('children');const [app,setApp]=useState({childName:'',grade:'Form 1',schoolId:'s1',previousSchool:'',notes:''});const [file,setFile]=useState(null);const submit=e=>{e.preventDefault();update(d=>d.applications.push({id:uid(),schoolId:app.schoolId,parentId:p.id,childName:app.childName,grade:app.grade,previousSchool:app.previousSchool,notes:app.notes,document:file?.name||'',status:'Pending',date:new Date().toISOString()}));alert('Application submitted. The school approver can now see it.');setApp({...app,childName:'',previousSchool:'',notes:''});setFile(null)};return <><Tabs items={['children','applications','schools','calendar']} tab={tab} setTab={setTab}/>{tab==='children'&&<div className="cards">{children.map(c=><article className="childcard" key={c.id}><div className="cardtop"><div><h3>{c.name}</h3><p>{c.grade} · Hermann Gmeiner High School</p></div><span className="pill green">{c.attendance}% attendance</span></div><div className="mini"><span>Average <b>{avg(c.marks)}%</b></span><span>Paid <b>E{c.paid.toLocaleString()}</b></span><span>Balance <b>E{(c.fees-c.paid).toLocaleString()}</b></span></div><h4>Marks</h4><MarksTable students={[c]}/><p><b>Teacher comments:</b> {Object.values(c.comments||{}).join(' ')||'No comments yet.'}</p></article>)}</div>}{tab==='applications'&&<div className="panel"><h3>Apply to a school</h3><form className="form" onSubmit={submit}><label>School<select value={app.schoolId} onChange={e=>setApp({...app,schoolId:e.target.value})}>{data.schools.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label><Field label="Child full name" value={app.childName} onChange={v=>setApp({...app,childName:v})} required/><label>Grade/Form<select value={app.grade} onChange={e=>setApp({...app,grade:e.target.value})}><option>Form 1</option><option>Form 2</option><option>Form 3</option><option>Form 4</option><option>Form 5</option><option>Grade 1</option><option>Grade 2</option></select></label><Field label="Previous school" value={app.previousSchool} onChange={v=>setApp({...app,previousSchool:v})}/><label>Required transcript/report <input type="file" accept=".pdf,.png,.jpg,.jpeg" onChange={e=>setFile(e.target.files?.[0]||null)} required/></label><label>Other notes<textarea value={app.notes} onChange={e=>setApp({...app,notes:e.target.value})}/></label><button className="primary" type="submit">Submit Application <Upload/></button></form><h3>Your applications</h3>{data.applications.filter(a=>a.parentId===p.id).map(a=><div className="listrow" key={a.id}><div><b>{a.childName}</b><small>{a.grade} · Document: {a.document||'none'}</small></div><Status status={a.status}/></div>)}</div>}{tab==='schools'&&<Directory schools={data.schools} query="" setQuery={()=>{}} go={()=>{}}/>}{tab==='calendar'&&<Calendar data={data}/>}</>}
-function Teacher({data,update}){const teacher=data.staff.find(x=>x.role==='Teacher');const students=data.students.filter(s=>s.schoolId===teacher.schoolId && teacher.grades.includes(s.grade));const [subject,setSubject]=useState(teacher.subjects[0]);const [comment,setComment]=useState({});const saveMark=(id,v)=>update(d=>{const s=d.students.find(x=>x.id===id);s.marks[subject]=Number(v)});const saveComment=(id)=>update(d=>{const s=d.students.find(x=>x.id===id);s.comments[subject]=comment[id]||''});return <><div className="notice"><BookOpen/><div><b>Teaching assignment</b><p>{teacher.subjects.join(', ')} · {teacher.grades.join(', ')}</p></div></div><div className="toolbar"><select value={subject} onChange={e=>setSubject(e.target.value)}>{teacher.subjects.map(s=><option key={s}>{s}</option>)}</select></div><div className="tablewrap"><table><thead><tr><th>Form</th><th>Name</th><th>Attendance</th><th>Average</th><th>{subject} mark</th><th>Comment</th></tr></thead><tbody>{students.map(s=><tr key={s.id}><td>{s.grade}</td><td>{s.name}</td><td>{s.attendance}%</td><td>{avg(s.marks)}%</td><td><input className="mark" type="number" min="0" max="100" value={s.marks[subject]??''} onChange={e=>saveMark(s.id,e.target.value)}/></td><td><input value={comment[s.id]??s.comments?.[subject]??''} onChange={e=>setComment({...comment,[s.id]:e.target.value})}/><button className="tiny" onClick={()=>saveComment(s.id)}>Save</button></td></tr>)}</tbody></table></div><Calendar data={data}/></>}
-function Leadership({role,data,update}){const [tab,setTab]=useState('students');const apps=data.applications.filter(a=>a.schoolId==='s1');const decide=(id,status)=>update(d=>{const a=d.applications.find(x=>x.id===id);if(a.status==='Approved')return;a.status=status;if(status==='Approved'){const s=d.schools.find(x=>x.id===a.schoolId);if((s.spaces[a.grade]||0)>0)s.spaces[a.grade]-=1}});return <><div className="metricgrid"><Metric label="Students" value={data.students.length}/><Metric label="Applications" value={apps.filter(a=>a.status==='Pending').length}/><Metric label="Available spaces" value={Object.values(data.schools[0].spaces).reduce((a,b)=>a+b,0)}/><Metric label="Fees outstanding" value={'E'+data.students.reduce((a,s)=>a+s.fees-s.paid,0).toLocaleString()}/></div><Tabs items={['students','marks','applications','fees','calendar']} tab={tab} setTab={setTab}/>{tab==='students'&&<div className="tablewrap"><table><thead><tr><th>Form</th><th>Student</th><th>Attendance</th><th>Average</th><th>Balance</th></tr></thead><tbody>{data.students.map(s=><tr key={s.id}><td>{s.grade}</td><td>{s.name}</td><td>{s.attendance}%</td><td>{avg(s.marks)}%</td><td>E{(s.fees-s.paid).toLocaleString()}</td></tr>)}</tbody></table></div>}{tab==='marks'&&<MarksTable students={data.students}/>} {tab==='applications'&&<div className="panel"><h3>Active applications</h3>{apps.length?apps.map(a=><div className="listrow" key={a.id}><div><b>{a.childName}</b><small>{a.grade} · {a.document||'No document'}</small></div><div className="rowactions"><Status status={a.status}/>{a.status==='Pending'&&<><button className="approve" onClick={()=>decide(a.id,'Approved')}>Approve</button><button className="wait" onClick={()=>decide(a.id,'Waiting List')}>Wait list</button><button className="reject" onClick={()=>decide(a.id,'Declined')}>Decline</button></>}</div></div>):<Empty text="No applications yet."/>}</div>}{tab==='fees'&&<FeesTable students={data.students}/>} {tab==='calendar'&&<Calendar data={data}/>}</>}
-function Accountant({data,update}){const pending=data.receipts.filter(r=>r.status==='Pending');const approve=id=>update(d=>{const r=d.receipts.find(x=>x.id===id);if(r.status!=='Pending')return;r.status='Approved';const s=d.students.find(x=>x.id===r.studentId);s.paid=Math.min(s.fees,s.paid+r.amount)});return <><div className="metricgrid"><Metric label="Outstanding" value={'E'+data.students.reduce((a,s)=>a+s.fees-s.paid,0).toLocaleString()}/><Metric label="Pending receipts" value={pending.length}/></div><FeesTable students={data.students}/><div className="panel"><h3>Receipt approvals</h3>{pending.length?pending.map(r=><div className="listrow" key={r.id}><div><b>{r.studentName}</b><small>E{r.amount} · {r.file}</small></div><div className="rowactions"><button className="approve" onClick={()=>approve(r.id)}>Approve</button><button className="reject" onClick={()=>update(d=>{const x=d.receipts.find(y=>y.id===r.id);x.status='Rejected'})}>Reject</button></div></div>):<Empty text="No pending receipts."/>}</div></>}
-function Secretary({data,update}){const [title,setTitle]=useState('');const [body,setBody]=useState('');const post=e=>{e.preventDefault();update(d=>d.announcements.unshift({id:uid(),title,body,schoolId:'s1'}));setTitle('');setBody('')};return <><div className="twocol panels"><div className="panel"><h3>New announcement</h3><form className="form" onSubmit={post}><Field label="Title" value={title} onChange={setTitle} required/><label>Message<textarea value={body} onChange={e=>setBody(e.target.value)} required/></label><button className="primary" type="submit">Publish <Bell/></button></form></div><Calendar data={data}/></div><div className="panel"><h3>Published notifications</h3>{data.announcements.map(a=><div className="listrow" key={a.id}><div><b>{a.title}</b><small>{a.body}</small></div><CheckCircle2/></div>)}</div></>}
-function Admin({data,update}){const approve=(id,ok)=>update(d=>{const p=d.pendingSchools.find(x=>x.id===id);if(!p)return;if(ok){d.schools.push({...p,status:'Approved',admissions:'OPEN',spaces:{'Form 1':20,'Form 2':10,'Form 3':15,'Form 4':12,'Form 5':13}});d.pendingSchools=d.pendingSchools.filter(x=>x.id!==id)}else{p.status='Rejected';p.reason='Information could not be verified.'}});return <><div className="metricgrid"><Metric label="Registered schools" value={data.schools.length}/><Metric label="Pending schools" value={data.pendingSchools.filter(x=>x.status==='Pending').length}/><Metric label="Total platform schools" value={data.schools.length}/></div><div className="panel"><h3>Pending school registrations</h3>{data.pendingSchools.filter(x=>x.status==='Pending').length?data.pendingSchools.filter(x=>x.status==='Pending').map(s=><div className="listrow" key={s.id}><div><b>{s.name}</b><small>Centre {s.centre} · {s.location} · Principal: {s.principal}</small><small>Staff: {s.staff}</small></div><div className="rowactions"><button className="approve" onClick={()=>approve(s.id,true)}>Approve</button><button className="reject" onClick={()=>approve(s.id,false)}>Reject</button></div></div>):<Empty text="No pending school registrations."/>}</div><div className="panel"><h3>Registered schools</h3>{data.schools.map(s=><div className="listrow" key={s.id}><div><b>{s.name}</b><small>Centre {s.centre} · {s.location}</small></div><Status status={s.status}/></div>)}</div></>}
-function FeesTable({students}){return <div className="tablewrap"><table><thead><tr><th>Form</th><th>Student</th><th>Total fees</th><th>Paid</th><th>Balance</th></tr></thead><tbody>{students.map(s=><tr key={s.id}><td>{s.grade}</td><td>{s.name}</td><td>E{s.fees.toLocaleString()}</td><td>E{s.paid.toLocaleString()}</td><td>E{(s.fees-s.paid).toLocaleString()}</td></tr>)}</tbody></table></div>}
-function MarksTable({students}){const subjects=['Mathematics','English','Science','Agriculture','Physics'];return <div className="tablewrap"><table><thead><tr><th>Form</th><th>Name</th>{subjects.map(x=><th key={x}>{x.slice(0,4)}</th>)}<th>Aggregate</th></tr></thead><tbody>{students.map(s=><tr key={s.id}><td>{s.grade}</td><td>{s.name}</td>{subjects.map(x=><td key={x}>{s.marks[x]??'—'}</td>)}<td><b>{aggregate(s.marks)}</b></td></tr>)}</tbody></table></div>}
-function Calendar({data}){return <div className="panel"><h3><CalendarDays/> School calendar</h3>{data.calendar.map(e=><div className="listrow" key={e.id}><div><b>{e.title}</b><small>{e.date} · {e.time}</small></div><CalendarDays/></div>)}</div>}
-function Tabs({items,tab,setTab}){return <div className="tabs">{items.map(x=><button className={tab===x?'active':''} onClick={()=>setTab(x)} key={x}>{x.replace(/(^|_)/g,' ').replace(/^./,c=>c.toUpperCase())}</button>)}</div>}
-function Metric({label,value}){return <div className="metric"><small>{label}</small><b>{value}</b></div>}
-function Status({status}){return <span className={'status '+status.toLowerCase().replace(/ /g,'-')}>{status}</span>}
-function Empty({text}){return <div className="empty">{text}</div>}
-function avg(m){const v=Object.values(m||{});return v.length?Math.round(v.reduce((a,b)=>a+Number(b),0)/v.length):0}
-function aggregate(m){return Object.values(m||{}).reduce((a,b)=>a+Number(b||0),0)}
+/* =========================================================
+   EDULINK ESWATINI
+   Demo-only frontend prototype
+   ========================================================= */
 
-createRoot(document.getElementById('root')).render(<App/>)
+const roles = {
+  "System Admin": ["dashboard", "schools", "settings"],
+
+  Principal: [
+    "dashboard",
+    "admissions",
+    "students",
+    "teachers",
+    "attendance",
+    "marks",
+    "finance",
+    "spaces",
+    "resources",
+    "notifications",
+    "calendar",
+    "reports",
+    "settings"
+  ],
+
+  "Deputy Principal": [
+    "dashboard",
+    "admissions",
+    "students",
+    "teachers",
+    "attendance",
+    "marks",
+    "finance",
+    "spaces",
+    "resources",
+    "notifications",
+    "calendar",
+    "reports"
+  ],
+
+  Teacher: [
+    "dashboard",
+    "students",
+    "attendance",
+    "marks",
+    "calendar"
+  ],
+
+  Accountant: [
+    "dashboard",
+    "finance"
+  ],
+
+  Secretary: [
+    "dashboard",
+    "notifications",
+    "calendar"
+  ],
+
+  Parent: [
+    "dashboard",
+    "schools",
+    "children",
+    "applications",
+    "attendance",
+    "marks",
+    "fees",
+    "notifications"
+  ]
+};
+
+const navMeta = {
+  dashboard: ["Overview", LayoutDashboard],
+  schools: ["Find a School", School],
+  admissions: ["Applications", FileText],
+  students: ["Students", Users],
+  teachers: ["Teachers", GraduationCap],
+  attendance: ["Attendance", CalendarCheck],
+  marks: ["Marks & Performance", BookOpen],
+  finance: ["Finance", Wallet],
+  spaces: ["Available Spaces", Boxes],
+  resources: ["Resources", Boxes],
+  notifications: ["Notifications", MessageSquare],
+  calendar: ["School Calendar", CalendarDays],
+  children: ["My Children", Users],
+  applications: ["My Applications", FileText],
+  fees: ["School Fees", Receipt],
+  reports: ["Reports", FileText],
+  settings: ["Settings", Settings]
+};
+
+/* =========================================================
+   DEMO DATA
+   ========================================================= */
+
+const seed = {
+  schools: [
+    {
+      id: "S1",
+      name: "Hermann Gmeiner High School",
+      centre: "3333",
+      location: "Manzini",
+      type: "High School",
+      fees: 3000,
+      status: "APPROVED",
+      admission: "OPEN",
+      spaces: {
+        "Form 1": 20,
+        "Form 2": 10,
+        "Form 3": 15,
+        "Form 4": 12,
+        "Form 5": 13
+      },
+      staff: [
+        {
+          name: "Dr. J. Dlamini",
+          role: "Principal"
+        },
+        {
+          name: "Mr. B. Mamba",
+          role: "Deputy Principal"
+        },
+        {
+          name: "Mr. M. Nkosi",
+          role: "Teacher",
+          subjects: ["Mathematics", "English"],
+          grades: ["Form 1", "Form 2"]
+        },
+        {
+          name: "Ms. P. Mamba",
+          role: "Accountant"
+        },
+        {
+          name: "Mrs. S. Hlophe",
+          role: "Secretary"
+        }
+      ]
+    },
+
+    {
+      id: "S2",
+      name: "Mbabane Valley Secondary School",
+      centre: "4444",
+      location: "Mbabane",
+      type: "High School",
+      fees: 2800,
+      status: "APPROVED",
+      admission: "OPEN",
+      spaces: {
+        "Form 1": 14,
+        "Form 2": 8,
+        "Form 3": 11,
+        "Form 4": 7,
+        "Form 5": 5
+      },
+      staff: []
+    },
+
+    {
+      id: "S3",
+      name: "Royal Hills Primary School",
+      centre: "5555",
+      location: "Lobamba",
+      type: "Primary School",
+      fees: 2200,
+      status: "APPROVED",
+      admission: "OPEN",
+      spaces: {
+        "Grade 1": 12,
+        "Grade 2": 10,
+        "Grade 3": 9,
+        "Grade 4": 8,
+        "Grade 5": 10,
+        "Grade 6": 7,
+        "Grade 7": 6
+      },
+      staff: []
+    }
+  ],
+
+  pendingSchools: [],
+
+  students: [
+    {
+      id: "ST-001",
+      name: "Lwazi Mamba",
+      form: "Form 1",
+      schoolId: "S1",
+      parentEmail: "parent@demo.sz",
+      attendance: 97,
+      subjects: {
+        Mathematics: {
+          test: 80,
+          exam: 84,
+          comment: "Strong progress"
+        },
+        English: {
+          test: 88,
+          exam: 90,
+          comment: "Excellent reading"
+        }
+      }
+    },
+
+    {
+      id: "ST-002",
+      name: "Ayanda Hlophe",
+      form: "Form 2",
+      schoolId: "S1",
+      parentEmail: "parent@demo.sz",
+      attendance: 94,
+      subjects: {
+        Mathematics: {
+          test: 72,
+          exam: 70,
+          comment: "Keep practising"
+        },
+        English: {
+          test: 75,
+          exam: 78,
+          comment: "Good effort"
+        }
+      }
+    },
+
+    {
+      id: "ST-003",
+      name: "Sibusiso Dlamini",
+      form: "Form 3",
+      schoolId: "S1",
+      parentEmail: "otherparent@demo.sz",
+      attendance: 87,
+      subjects: {
+        Mathematics: {
+          test: 61,
+          exam: 60,
+          comment: "Needs support"
+        }
+      }
+    }
+  ],
+
+  applications: [],
+
+  payments: [
+    {
+      id: "P1",
+      studentId: "ST-001",
+      parentEmail: "parent@demo.sz",
+      amount: 1500,
+      status: "APPROVED",
+      receipt: "Demo receipt - E1500"
+    },
+
+    {
+      id: "P2",
+      studentId: "ST-002",
+      parentEmail: "parent@demo.sz",
+      amount: 1000,
+      status: "PENDING",
+      receipt: "Demo receipt - E1000"
+    }
+  ],
+
+  notifications: [
+    {
+      id: "N1",
+      title: "Welcome to EduLink Eswatini",
+      body: "This is a fictional demonstration notification.",
+      audience: "all"
+    }
+  ],
+
+  calendar: [
+    {
+      id: "C1",
+      title: "Parent Meeting",
+      date: "2026-09-05",
+      time: "14:00",
+      details: "Main hall"
+    }
+  ]
+};
+
+/* =========================================================
+   DEMO LOGIN ACCOUNTS
+   ========================================================= */
+
+const accounts = {
+  "parent@demo.sz": {
+    role: "Parent",
+    name: "Demo Parent",
+    schoolId: "S1"
+  },
+
+  "teacher@demo.sz": {
+    role: "Teacher",
+    name: "Mr. M. Nkosi",
+    schoolId: "S1",
+    subjects: ["Mathematics", "English"],
+    grades: ["Form 1", "Form 2"]
+  },
+
+  "accountant@demo.sz": {
+    role: "Accountant",
+    name: "Ms. P. Mamba",
+    schoolId: "S1"
+  },
+
+  "secretary@demo.sz": {
+    role: "Secretary",
+    name: "Mrs. S. Hlophe",
+    schoolId: "S1"
+  },
+
+  "principal@demo.sz": {
+    role: "Principal",
+    name: "Dr. J. Dlamini",
+    schoolId: "S1"
+  },
+
+  "deputy@demo.sz": {
+    role: "Deputy Principal",
+    name: "Mr. B. Mamba",
+    schoolId: "S1"
+  },
+
+  "admin@demo.sz": {
+    role: "System Admin",
+    name: "EduLink Administrator"
+  }
+};
+
+const PASSWORD = "demo123";
+
+/* =========================================================
+   SAFE LOCAL STORAGE
+   ========================================================= */
+
+function isValidEduLinkData(data) {
+  return (
+    data &&
+    Array.isArray(data.schools) &&
+    Array.isArray(data.pendingSchools) &&
+    Array.isArray(data.students) &&
+    Array.isArray(data.applications) &&
+    Array.isArray(data.payments) &&
+    Array.isArray(data.notifications) &&
+    Array.isArray(data.calendar)
+  );
+}
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem("edulink-demo-data");
+
+    if (!saved) {
+      return seed;
+    }
+
+    const parsed = JSON.parse(saved);
+
+    if (!isValidEduLinkData(parsed)) {
+      localStorage.removeItem("edulink-demo-data");
+      return seed;
+    }
+
+    return parsed;
+  } catch (error) {
+    console.error("EduLink data error:", error);
+
+    try {
+      localStorage.removeItem("edulink-demo-data");
+    } catch (_) {}
+
+    return seed;
+  }
+}
+
+function saveData(data) {
+  try {
+    localStorage.setItem(
+      "edulink-demo-data",
+      JSON.stringify(data)
+    );
+  } catch (error) {
+    console.error("Could not save EduLink data:", error);
+  }
+}
+
+function totalSpaces(spaces) {
+  return Object.values(spaces || {}).reduce(
+    (total, value) => total + Number(value || 0),
+    0
+  );
+}
+
+function avgStudent(student) {
+  const values = Object.values(student.subjects || {})
+    .flatMap((subject) => [
+      Number(subject.test || 0),
+      Number(subject.exam || 0)
+    ])
+    .filter((value) => Number.isFinite(value));
+
+  if (!values.length) return 0;
+
+  return Math.round(
+    values.reduce((a, b) => a + b, 0) / values.length
+  );
+}
+
+function aggregate(student) {
+  return Object.values(student.subjects || {}).reduce(
+    (sum, subject) =>
+      sum +
+      Number(subject.test || 0) +
+      Number(subject.exam || 0),
+    0
+  );
+}
+
+function useData() {
+  const [data, setData] = useState(loadData);
+
+  useEffect(() => {
+    saveData(data);
+  }, [data]);
+
+  return [data, setData];
+}
+
+/* =========================================================
+   MAIN APP
+   ========================================================= */
+
+function App() {
+  const [data, setData] = useData();
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState("home");
+  const [mobile, setMobile] = useState(false);
+
+  if (!user) {
+    return (
+      <Public
+        data={data}
+        setData={setData}
+        onLogin={setUser}
+        setPage={setPage}
+      />
+    );
+  }
+
+  const allowed = roles[user.role] || [];
+
+  const schoolId = user.schoolId;
+
+  return (
+    <div className="app">
+      <aside
+        className={`sidebar ${mobile ? "open" : ""}`}
+      >
+        <div className="brand">
+          <div className="brandIcon">
+            <ShieldCheck size={22} />
+          </div>
+
+          <div>
+            EduLink <span>ESWATINI</span>
+          </div>
+        </div>
+
+        <div className="roleBadge">
+          {user.role}
+        </div>
+
+        <nav>
+          {allowed.map((key) => {
+            const meta = navMeta[key];
+
+            if (!meta) return null;
+
+            const [label, Icon] = meta;
+
+            const display =
+              user.role === "System Admin" &&
+              key === "schools"
+                ? "School Management"
+                : label;
+
+            return (
+              <button
+                key={key}
+                className={
+                  page === key ? "navActive" : ""
+                }
+                onClick={() => {
+                  setPage(key);
+                  setMobile(false);
+                }}
+              >
+                <Icon size={18} />
+                {display}
+              </button>
+            );
+          })}
+        </nav>
+
+        <button
+          className="logout"
+          onClick={() => {
+            setUser(null);
+            setPage("home");
+          }}
+        >
+          <LogOut size={18} />
+          Sign out
+        </button>
+      </aside>
+
+      <main className="main">
+        <header className="topbar">
+          <button
+            className="mobileBtn"
+            onClick={() => setMobile(!mobile)}
+          >
+            {mobile ? <X /> : <Menu />}
+          </button>
+
+          <div>
+            <strong>{user.name}</strong>
+
+            <small>
+              {user.role}
+
+              {schoolId
+                ? ` • ${
+                    data.schools.find(
+                      (school) =>
+                        school.id === schoolId
+                    )?.name || ""
+                  }`
+                : ""}
+            </small>
+          </div>
+
+          <div className="topPill">
+            DEMO MODE
+          </div>
+        </header>
+
+        <div className="content">
+          <Page
+            page={page}
+            user={user}
+            data={data}
+            setData={setData}
+            setPage={setPage}
+          />
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* =========================================================
+   PUBLIC HOME
+   ========================================================= */
+
+function Public({
+  data,
+  setData,
+  onLogin,
+  setPage
+}) {
+  const [search, setSearch] = useState("");
+  const [login, setLogin] = useState(false);
+  const [schoolReg, setSchoolReg] =
+    useState(false);
+  const [selected, setSelected] =
+    useState(null);
+
+  const visible = data.schools.filter(
+    (school) => {
+      const text =
+        `${school.name} ${school.centre} ${school.location}`
+          .toLowerCase();
+
+      return (
+        school.status === "APPROVED" &&
+        text.includes(search.toLowerCase())
+      );
+    }
+  );
+
+  if (selected) {
+    return (
+      <div className="public">
+        <Header
+          onLogin={() => setLogin(true)}
+          onSchools={() => setSelected(null)}
+        />
+
+        <SchoolProfile
+          school={selected}
+          onBack={() => setSelected(null)}
+          onLogin={() => setLogin(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="public">
+      <Header
+        onLogin={() => setLogin(true)}
+        onSchools={() =>
+          document
+            .getElementById("schools")
+            ?.scrollIntoView({
+              behavior: "smooth"
+            })
+        }
+      />
+
+      <section className="hero">
+        <div className="heroCopy">
+          <span className="eyebrow">
+            EDUCATION • CONNECTION • OPPORTUNITY
+          </span>
+
+          <h1>
+            One platform for{" "}
+            <em>
+              schools, parents and students.
+            </em>
+          </h1>
+
+          <p>
+            Find schools, check available spaces,
+            apply online, monitor your child's
+            progress and stay connected with
+            school communications.
+          </p>
+
+          <div className="actions">
+            <button
+              className="primary"
+              onClick={() =>
+                document
+                  .getElementById("schools")
+                  ?.scrollIntoView({
+                    behavior: "smooth"
+                  })
+              }
+            >
+              Find a School
+              <ChevronRight size={17} />
+            </button>
+
+            <button
+              className="secondary"
+              onClick={() =>
+                setSchoolReg(true)
+              }
+            >
+              Register Your School
+            </button>
+          </div>
+        </div>
+
+        <div className="heroPanel">
+          <div className="miniTop">
+            <span>EduLink Eswatini</span>
+            <b>Prototype</b>
+          </div>
+
+          <div className="miniStatGrid">
+            <div>
+              <strong>
+                {data.schools.length}
+              </strong>
+              <small>
+                Registered schools
+              </small>
+            </div>
+
+            <div>
+              <strong>
+                {data.schools.reduce(
+                  (total, school) =>
+                    total +
+                    totalSpaces(
+                      school.spaces
+                    ),
+                  0
+                )}
+              </strong>
+              <small>
+                Available spaces
+              </small>
+            </div>
+
+            <div>
+              <strong>
+                {
+                  data.applications.filter(
+                    (application) =>
+                      application.status ===
+                      "PENDING"
+                  ).length
+                }
+              </strong>
+
+              <small>
+                Active applications
+              </small>
+            </div>
+          </div>
+
+          <div className="miniNote">
+            <CheckCircle size={18} />
+            <span>
+              Secure role-based school
+              management
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="publicSection"
+        id="schools"
+      >
+        <div className="sectionHead">
+          <span className="eyebrow">
+            SCHOOL DIRECTORY
+          </span>
+
+          <h2>Find a school</h2>
+
+          <p>
+            Search approved participating
+            schools by name, Centre Number or
+            location.
+          </p>
+        </div>
+
+        <div className="searchBox">
+          <Search size={19} />
+
+          <input
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
+            placeholder="Search school, Centre Number or location..."
+          />
+        </div>
+
+        <div className="schoolGrid">
+          {visible.map((school) => (
+            <button
+              className="schoolCard"
+              key={school.id}
+              onClick={() =>
+                setSelected(school)
+              }
+            >
+              <div className="schoolIcon">
+                <School />
+              </div>
+
+              <div className="schoolCardBody">
+                <div className="schoolLine">
+                  <span>{school.type}</span>
+
+                  <b>
+                    {school.admission ===
+                    "OPEN"
+                      ? "Admissions Open"
+                      : "Admissions Closed"}
+                  </b>
+                </div>
+
+                <h3>{school.name}</h3>
+
+                <p>
+                  Centre Number:{" "}
+                  {school.centre}
+                </p>
+
+                <p>{school.location}</p>
+
+                <div className="spaceLine">
+                  <strong>
+                    {totalSpaces(
+                      school.spaces
+                    )}
+                  </strong>
+
+                  <span>
+                    available spaces
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="publicSection alt">
+        <div className="sectionHead">
+          <span className="eyebrow">
+            HOW IT WORKS
+          </span>
+
+          <h2>
+            One connected education
+            experience
+          </h2>
+        </div>
+
+        <div className="featureGrid">
+          <Feature
+            icon="🏫"
+            title="Find Schools"
+            text="Discover approved schools and available spaces."
+          />
+
+          <Feature
+            icon="📝"
+            title="Online Applications"
+            text="Parents submit applications and required documents online."
+          />
+
+          <Feature
+            icon="📊"
+            title="Child Progress"
+            text="Parents see only their own children's marks, attendance and performance."
+          />
+
+          <Feature
+            icon="💳"
+            title="School Fees"
+            text="Track balances and receipt verification through the correct school role."
+          />
+        </div>
+      </section>
+
+      <footer>
+        <div className="brand">
+          <div className="brandIcon">
+            <ShieldCheck size={21} />
+          </div>
+
+          <div>
+            EduLink{" "}
+            <span>ESWATINI</span>
+          </div>
+        </div>
+
+        <p>
+          Fictional prototype data • Not
+          affiliated with ECESWA or SNAT.
+        </p>
+      </footer>
+
+      {login && (
+        <LoginModal
+          onClose={() => setLogin(false)}
+          onLogin={(user) => {
+            setLogin(false);
+            onLogin(user);
+            setPage("dashboard");
+          }}
+        />
+      )}
+
+      {schoolReg && (
+        <SchoolRegistration
+          data={data}
+          setData={setData}
+          onClose={() =>
+            setSchoolReg(false)
+          }
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+function Header({
+  onLogin,
+  onSchools
+}) {
+  return (
+    <header className="publicHeader">
+      <div className="brand">
+        <div className="brandIcon">
+          <ShieldCheck size={22} />
+        </div>
+
+        <div>
+          EduLink <span>ESWATINI</span>
+        </div>
+      </div>
+
+      <nav>
+        <button
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            })
+          }
+        >
+          Home
+        </button>
+
+        <button onClick={onSchools}>
+          Find a School
+        </button>
+
+        <button
+          onClick={() =>
+            document
+              .getElementById("about")
+              ?.scrollIntoView({
+                behavior: "smooth"
+              })
+          }
+        >
+          About
+        </button>
+
+        <button
+          className="loginTop"
+          onClick={onLogin}
+        >
+          Login
+        </button>
+      </nav>
+    </header>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  text
+}) {
+  return (
+    <div className="featureCard">
+      <div className="featureIcon">
+        {icon}
+      </div>
+
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </div>
+  );
+}
+
+/* =========================================================
+   SCHOOL PROFILE
+   ========================================================= */
+
+function SchoolProfile({
+  school,
+  onBack,
+  onLogin
+}) {
+  return (
+    <section className="profilePage">
+      <button
+        className="backBtn"
+        onClick={onBack}
+      >
+        ← Back to schools
+      </button>
+
+      <div className="profileHero">
+        <div>
+          <span className="eyebrow">
+            APPROVED SCHOOL
+          </span>
+
+          <h1>{school.name}</h1>
+
+          <p>
+            Centre Number:{" "}
+            <b>{school.centre}</b> •{" "}
+            {school.location} •{" "}
+            {school.type}
+          </p>
+        </div>
+
+        <span className="openBadge">
+          {school.admission === "OPEN"
+            ? "ADMISSIONS OPEN"
+            : "ADMISSIONS CLOSED"}
+        </span>
+      </div>
+
+      <div className="profileGrid">
+        <div className="infoPanel">
+          <h3>Available spaces</h3>
+
+          <div className="bigNumber">
+            {totalSpaces(school.spaces)}
+          </div>
+
+          <div className="spaceRows">
+            {Object.entries(
+              school.spaces
+            ).map(([grade, number]) => (
+              <div key={grade}>
+                <span>{grade}</span>
+
+                <b>
+                  {number > 0
+                    ? number
+                    : "FULL"}
+                </b>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="infoPanel">
+          <h3>School fees</h3>
+
+          <div className="feeAmount">
+            E{" "}
+            {Number(
+              school.fees || 0
+            ).toLocaleString()}
+          </div>
+
+          <p>
+            Demo annual school fees.
+            Parents can apply after
+            signing in.
+          </p>
+
+          <button
+            className="primary"
+            onClick={onLogin}
+          >
+            Login to Apply
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+function LoginModal({
+  onClose,
+  onLogin
+}) {
+  const roleChoices = [
+    ["Parent", "parent@demo.sz", UserPlus],
+    ["Teacher", "teacher@demo.sz", GraduationCap],
+    ["Principal", "principal@demo.sz", ShieldCheck],
+    ["Deputy Principal", "deputy@demo.sz", ShieldCheck],
+    ["Accountant", "accountant@demo.sz", Wallet],
+    ["Secretary", "secretary@demo.sz", MessageSquare],
+    ["System Admin", "admin@demo.sz", Settings]
+  ];
+
+  const [email, setEmail] =
+    useState("parent@demo.sz");
+
+  const [password, setPassword] =
+    useState("demo123");
+
+  const [selectedRole, setSelectedRole] =
+    useState("Parent");
+
+  const [error, setError] =
+    useState("");
+
+  function chooseRole(
+    role,
+    address
+  ) {
+    setSelectedRole(role);
+    setEmail(address);
+    setPassword("demo123");
+    setError("");
+  }
+
+  function submit() {
+    const account =
+      accounts[
+        email.trim().toLowerCase()
+      ];
+
+    if (
+      !account ||
+      password !== PASSWORD
+    ) {
+      setError(
+        "Incorrect demo email or password."
+      );
+      return;
+    }
+
+    onLogin({
+      email: email.trim().toLowerCase(),
+      ...account
+    });
+  }
+
+  return (
+    <Modal
+      title="Login to EduLink"
+      onClose={onClose}
+    >
+      <p className="muted">
+        Select the role you want to use
+        for the presentation.
+      </p>
+
+      <div className="loginRoleGrid">
+        {roleChoices.map(
+          ([
+            label,
+            address,
+            Icon
+          ]) => (
+            <button
+              type="button"
+              key={label}
+              className={
+                "loginRoleCard " +
+                (selectedRole ===
+                label
+                  ? "selected"
+                  : "")
+              }
+              onClick={() =>
+                chooseRole(
+                  label,
+                  address
+                )
+              }
+            >
+              <span className="loginRoleIcon">
+                <Icon size={19} />
+              </span>
+
+              <span className="loginRoleText">
+                <b>{label}</b>
+                <small>
+                  {address}
+                </small>
+              </span>
+
+              <ChevronRight size={17} />
+            </button>
+          )
+        )}
+      </div>
+
+      <label>
+        Email
+
+        <input
+          value={email}
+          onChange={(event) =>
+            setEmail(
+              event.target.value
+            )
+          }
+        />
+      </label>
+
+      <label>
+        Password
+
+        <input
+          type="password"
+          value={password}
+          onChange={(event) =>
+            setPassword(
+              event.target.value
+            )
+          }
+        />
+      </label>
+
+      <div className="demoBox">
+        Demo password:{" "}
+        <b>demo123</b>
+        <br />
+        Selected role:{" "}
+        <b>{selectedRole}</b>
+      </div>
+
+      <button
+        className="primary full"
+        onClick={submit}
+      >
+        Login as {selectedRole}
+      </button>
+
+      {error && (
+        <div className="error">
+          {error}
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* =========================================================
+   SCHOOL REGISTRATION
+   ========================================================= */
+
+function SchoolRegistration({
+  data,
+  setData,
+  onClose
+}) {
+  const [form, setForm] =
+    useState({
+      name: "",
+      centre: "",
+      location: "",
+      type: "High School",
+      phone: "",
+      email: "",
+      principal: "",
+      deputy: "",
+      staff: ""
+    });
+
+  const [done, setDone] =
+    useState(false);
+
+  function submit() {
+    if (
+      !form.name ||
+      !form.centre ||
+      !form.location ||
+      !form.principal
+    ) {
+      return;
+    }
+
+    const staff =
+      form.staff
+        .split(",")
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .map((name) => ({
+          name,
+          role: "Teacher"
+        }));
+
+    const pendingSchool = {
+      ...form,
+      id: "PS-" + Date.now(),
+      status: "PENDING",
+      staff: [
+        {
+          name: form.principal,
+          role: "Principal"
+        },
+        {
+          name: form.deputy,
+          role: "Deputy Principal"
+        },
+        ...staff
+      ]
+    };
+
+    setData({
+      ...data,
+      pendingSchools: [
+        ...data.pendingSchools,
+        pendingSchool
+      ]
+    });
+
+    setDone(true);
+  }
+
+  return (
+    <Modal
+      title="Register Your School"
+      onClose={onClose}
+    >
+      {done ? (
+        <>
+          <div className="successBox">
+            <CheckCircle />
+            Registration submitted for
+            Admin verification.
+          </div>
+
+          <p className="muted">
+            The System Admin must verify
+            that the school exists and
+            that the submitted information
+            is truthful before approval.
+          </p>
+
+          <button
+            className="primary full"
+            onClick={onClose}
+          >
+            Done
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="formGrid">
+            <label>
+              School name*
+              <input
+                value={form.name}
