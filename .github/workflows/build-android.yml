@@ -20,13 +20,27 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install web dependencies
         working-directory: edulink-app
+        run: npm install
 
       - name: Build web application
-        run: npm run build
         working-directory: edulink-app
+        run: npm run build
+
+      - name: Copy web application into Android assets
+        run: |
+          rm -rf edulink-app/android/app/src/main/assets/public
+          mkdir -p edulink-app/android/app/src/main/assets/public
+          cp -r edulink-app/dist/* edulink-app/android/app/src/main/assets/public/
+
+      - name: Remove invalid Android resource files
+        run: |
+          find edulink-app/android/app/src/main/res -type f -name "0" -delete
+
+      - name: Show Android resources
+        run: |
+          find edulink-app/android/app/src/main/res -type f
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -37,7 +51,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK
+      - name: Install Android SDK components
         run: |
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-35"
@@ -45,6 +59,8 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
 
       - name: Build Android APK
         working-directory: edulink-app/android
