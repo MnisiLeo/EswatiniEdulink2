@@ -13,7 +13,7 @@ jobs:
 
     steps:
 
-      # 1. Download the repository
+      # 1. Download repository
       - name: Checkout repository
         uses: actions/checkout@v5
 
@@ -23,36 +23,42 @@ jobs:
         with:
           node-version: 22
 
-      # 3. Install React dependencies
+      # 3. Install React + Capacitor dependencies
       - name: Install web dependencies
         working-directory: edulink-app
         run: npm install
 
-      # 4. Build the EduLink React application
+      # 4. Build React application
       - name: Build React application
         working-directory: edulink-app
         run: npm run build
 
-      # 5. Copy the finished React app into Android
+      # 5. Sync Capacitor with Android
+      # This is important for Camera/FileSystem functionality
+      - name: Sync Capacitor Android
+        working-directory: edulink-app
+        run: npx cap sync android
+
+      # 6. Copy React build into Android assets
       - name: Copy React build into Android assets
         run: |
           rm -rf edulink-app/android/app/src/main/assets/public
           mkdir -p edulink-app/android/app/src/main/assets/public
           cp -R edulink-app/dist/. edulink-app/android/app/src/main/assets/public/
 
-      # 6. Remove invalid placeholder Android resource files
+      # 7. Remove invalid placeholder Android resource files
       - name: Remove invalid Android resource files
         run: |
           find edulink-app/android/app/src/main/res -type f -name "0" -delete
 
-      # 7. Install Java
+      # 8. Install Java
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      # 8. Install Android SDK
+      # 9. Install Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
@@ -62,19 +68,19 @@ jobs:
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
-      # 9. Install compatible Gradle
+      # 10. Set up compatible Gradle
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
 
-      # 10. Build the Android APK
+      # 11. Build Android APK
       - name: Build Android APK
         working-directory: edulink-app/android
         run: |
           gradle assembleDebug --no-daemon
 
-      # 11. Upload the APK
+      # 12. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
