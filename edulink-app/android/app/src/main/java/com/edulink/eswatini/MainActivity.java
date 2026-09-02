@@ -109,12 +109,12 @@ public class MainActivity extends Activity {
     private void launchChooser(FileChooserParams params) {
         if (params.isCaptureEnabled() && acceptsImage(params.getAcceptTypes())) {
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            android.content.ContentValues values = new android.content.ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, "EduLink-" + System.currentTimeMillis() + ".jpg");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
             cameraOutputUri = getContentResolver().insert(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    new android.content.ContentValues() {{
-                        put(MediaStore.Images.Media.DISPLAY_NAME, "EduLink-" + System.currentTimeMillis() + ".jpg");
-                        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                    }});
+                    values);
             if (cameraOutputUri != null) {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutputUri);
                 cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
