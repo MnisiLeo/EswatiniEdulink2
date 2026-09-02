@@ -13,56 +13,68 @@ jobs:
 
     steps:
 
+      # 1. Download the repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      # 2. Install Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
 
+      # 3. Install React dependencies
       - name: Install web dependencies
         working-directory: edulink-app
         run: npm install
 
+      # 4. Build the EduLink React application
       - name: Build React application
         working-directory: edulink-app
         run: npm run build
 
+      # 5. Copy the finished React app into Android
       - name: Copy React build into Android assets
         run: |
           rm -rf edulink-app/android/app/src/main/assets/public
           mkdir -p edulink-app/android/app/src/main/assets/public
           cp -R edulink-app/dist/. edulink-app/android/app/src/main/assets/public/
 
+      # 6. Remove invalid placeholder Android resource files
       - name: Remove invalid Android resource files
         run: |
           find edulink-app/android/app/src/main/res -type f -name "0" -delete
 
+      # 7. Install Java
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
+      # 8. Install Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK
+      - name: Install Android SDK components
         run: |
           sdkmanager "platform-tools"
           sdkmanager "platforms;android-35"
           sdkmanager "build-tools;35.0.0"
 
+      # 9. Install compatible Gradle
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.7.1'
+          gradle-version: '8.7'
 
+      # 10. Build the Android APK
       - name: Build Android APK
         working-directory: edulink-app/android
-        run: gradle assembleDebug --no-daemon
+        run: |
+          gradle assembleDebug --no-daemon
 
+      # 11. Upload the APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
