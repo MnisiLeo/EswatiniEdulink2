@@ -34,7 +34,6 @@ jobs:
         run: npm run build
 
       # 5. Sync Capacitor with Android
-      # This is important for Camera/FileSystem functionality
       - name: Sync Capacitor Android
         working-directory: edulink-app
         run: npx cap sync android
@@ -46,7 +45,7 @@ jobs:
           mkdir -p edulink-app/android/app/src/main/assets/public
           cp -R edulink-app/dist/. edulink-app/android/app/src/main/assets/public/
 
-      # 7. Remove invalid placeholder Android resource files
+      # 7. Remove invalid Android resource files
       - name: Remove invalid Android resource files
         run: |
           find edulink-app/android/app/src/main/res -type f -name "0" -delete
@@ -60,13 +59,11 @@ jobs:
 
       # 9. Install Android SDK
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK components
-        run: |
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+        uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: 14742923
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+          accept-android-sdk-licenses: true
 
       # 10. Set up compatible Gradle
       - name: Set up Gradle
@@ -87,3 +84,5 @@ jobs:
           name: EduLink-Eswatini-APK
           path: edulink-app/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+
